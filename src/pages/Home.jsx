@@ -1,17 +1,12 @@
 import React from "react";
-import "./Home.css"; // Importa o CSS separado
+import Header from "../components/Header";
+import "./Home.css";
 import bookIllustration from "../assets/books-illustration.png";
 
 export default function Home() {
   return (
     <div className="home-bg">
-      <header className="home-header">
-        <span className="home-logo">UniLivros</span>
-        <div>
-          <button className="btn-cadastro">Cadastre-se</button>
-          <button className="btn-login">Login</button>
-        </div>
-      </header>
+      <Header />
       <main className="home-main">
         <section className="home-section">
           <div className="home-content">
@@ -19,17 +14,22 @@ export default function Home() {
               Compartilhar livros,
               <br />é compartilhar mundos.
             </h1>
-
-            <p className="home-desc">
-              UniLivros é um espaço pensado para quem acredita que ler é mais do
-              que virar páginas.
-              <br />
-              Aqui você pode montar sua estante virtual, trocar livros, conhecer
-              novos leitores e transformar cada encontro em uma nova história.
-            </p>
           </div>
-          <img src={bookIllustration} alt="Ilustração de livros" />
+          <div className="home-img-card">
+            <img
+              src={bookIllustration}
+              alt="Ilustração de troca de livros"
+              className="home-img"
+            />
+          </div>
         </section>
+        <p className="home-desc">
+          UniLivros é um espaço pensado para quem acredita que ler é mais do que
+          virar páginas.
+          <br />
+          Aqui você pode montar sua estante virtual, trocar livros, conhecer
+          novos leitores e transformar cada encontro em uma nova história.
+        </p>
       </main>
     </div>
   );

@@ -1,0 +1,65 @@
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 48px;
+  background: #F9E7DC;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  height: 80px;
+  /* altura fixa opcional para centralizar */
+}
+
+.home-logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #4B2E2E;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.btn-cadastro {
+  background: #F9B233;
+  color: #4B2E2E;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  margin-right: 16px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+}
+
+.btn-cadastro:hover {
+  background: #e6a91f;
+}
+
+.btn-login {
+  background: #fff;
+  color: #4B2E2E;
+  border: 1px solid #4B2E2E;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+}
+
+.btn-login:hover {
+  background: #f6e3c7;
+}
+
+.home-logo:hover {
+  color: #F9B233;
+  cursor: pointer;
+}
