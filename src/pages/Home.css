@@ -1,135 +1,170 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
-.home-bg {
-  background: #F6E3C7;
+/* Container Geral da Página Home */
+.home-container {
+  background: #F9E7DC;
+  /* Cor de fundo principal */
   min-height: 100vh;
   width: 100vw;
   font-family: 'Montserrat', sans-serif;
+  color: #4B2E2E;
+  /* Cor de texto padrão */
   overflow-x: hidden;
+  /* Evita scroll horizontal indesejado */
 }
 
-.home-header {
+/* Main Content */
+.home-main {
+  padding: 40px 50px;
+  max-width: 1200px;
+  /* Limita a largura do conteúdo para melhor leitura */
+  margin: 0 auto;
+  /* Centraliza o conteúdo */
+}
+
+/* Seção Hero (Título + Imagem) */
+.hero-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 48px 0 48px;
-  background: #F9E7DC;
-  border-bottom-left-radius: 18px;
-  border-bottom-right-radius: 18px;
+  gap: 40px;
+  margin-bottom: 80px;
+  flex-wrap: wrap;
+  /* Permite quebrar linha em telas pequenas */
 }
 
-.home-logo {
-  font-size: 2rem;
-  font-weight: 500;
-  color: #4B2E2E;
-  letter-spacing: 1px;
-}
-
-.btn-cadastro {
-  background: #F9B233;
-  color: #4B2E2E;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 22px;
-  margin-right: 16px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-cadastro:hover {
-  background: #e6a91f;
-}
-
-.btn-login {
-  background: #fff;
-  color: #4B2E2E;
-  border: 1px solid #4B2E2E;
-  border-radius: 8px;
-  padding: 10px 22px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-login:hover {
-  background: #f6e3c7;
-}
-
-.home-main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: calc(100vh - 90px);
-  width: 100vw;
-  padding-top: 32px;
-}
-
-.home-section {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  width: 1100px;
-  max-width: 95vw;
-  min-height: 400px;
-  gap: 0;
-}
-
-.home-content {
+.hero-content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding-right: 40px;
-  margin-top: 32px;
+  /* Ocupa o espaço disponível */
+  min-width: 300px;
+  /* Evita que o texto fique muito espremido */
 }
 
-.home-title {
-  font-size: 2.4rem;
-  font-weight: bold;
-  color: #4B2E2E;
-  margin-bottom: 32px;
-  text-align: left;
-  letter-spacing: 1px;
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
   line-height: 1.2;
-  font-family: 'Montserrat', sans-serif;
-}
-
-.home-img-card {
-  background: #fff;
-  border-radius: 32px;
-  box-shadow: 0 4px 24px #e9b2d6;
-  padding: 32px 32px 16px 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 420px;
-  max-width: 520px;
-  margin-left: 0;
-  margin-top: 0;
-  border: 8px solid #e9b2d6;
-  /* tom rosa do contorno */
-}
-
-.home-img {
-  width: 340px;
-  max-width: 100%;
-  margin-bottom: 0;
-  border-radius: 24px;
-  object-fit: contain;
-  background: #fff;
-}
-
-.home-desc {
-  font-size: 1.25rem;
   color: #4B2E2E;
-  text-align: center;
-  font-family: 'Montserrat', sans-serif;
-  line-height: 1.5;
-  margin-top: 32px;
-  margin-bottom: 0;
-  font-weight: 500;
+  margin: 0;
+}
+
+.hero-image-wrapper {
+  background: #FFDDEE;
+  /* Cor de fundo rosa suave da imagem */
+  border-radius: 40px;
+  /* Borda arredondada */
+  padding: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  /* Impede que a imagem encolha demais */
+  max-width: 50%;
+  /* Limita a largura da imagem */
+}
+
+.hero-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 20px;
+  /* Borda da imagem interna */
+}
+
+/* Seção Sobre (Texto Descritivo) */
+.about-section {
+  display: flex;
+  justify-content: flex-end;
+  /* Alinha o texto à direita */
+}
+
+.about-text {
+  font-size: 1.3rem;
+  line-height: 1.6;
+  max-width: 600px;
+  /* Limita a largura do parágrafo para legibilidade */
+  text-align: right;
+  color: #4B2E2E;
+  margin: 0;
+}
+
+/* =========================================
+   Responsividade
+   ========================================= */
+
+@media (max-width: 1024px) {
+  .home-main {
+    padding: 30px 30px;
+  }
+
+  .hero-title {
+    font-size: 2.8rem;
+  }
+
+  .hero-image-wrapper {
+    max-width: 45%;
+  }
+
+  .about-text {
+    font-size: 1.2rem;
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-main {
+    padding: 20px 20px;
+  }
+
+  .hero-section {
+    flex-direction: column;
+    /* Empilha os elementos em telas menores */
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .hero-content {
+    order: 2;
+    /* Move o conteúdo para baixo da imagem */
+    margin-top: 30px;
+  }
+
+  .hero-image-wrapper {
+    order: 1;
+    /* Move a imagem para cima do conteúdo */
+    max-width: 80%;
+    /* Aumenta a largura da imagem */
+    margin: 0 auto;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .about-section {
+    justify-content: center;
+    /* Centraliza o texto "Sobre" */
+  }
+
+  .about-text {
+    text-align: center;
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-main {
+    padding: 15px 15px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-image-wrapper {
+    max-width: 95%;
+    padding: 10px;
+  }
+
+  .about-text {
+    font-size: 1.1rem;
+  }
 }

@@ -1,24 +1,25 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // <-- 1. IMPORTAR LINK
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import "./Forms.css";
-import "./Login.css";
 import bookIcon from "../assets/book-icon.jpg";
 
-export default function Login() {
+export default function SolicitarCodigo() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!email || !password) {
-      alert("Por favor, preencha o usuário e a senha.");
+    if (!email) {
+      alert("Por favor, preencha seu e-mail.");
       return;
     }
-    console.log("--- Dados do Login ---");
-    console.log("Usuário:", email);
-    console.log("Senha:", password);
-    alert("Login simulado com sucesso! Verifique o console (F12).");
+
+    console.log("--- Solicitação de Código ---");
+    console.log("E-mail:", email);
+    alert("Código enviado (simulado)! Redirecionando...");
+
+    navigate("/confirmar-codigo");
   };
 
   return (
@@ -28,6 +29,10 @@ export default function Login() {
         <section className="form-card">
           <img src={bookIcon} alt="Ícone de livro" className="form-icon" />
 
+          <p className="form-info-text">
+            Digite seu e-mail para enviarmos um código de recuperação.
+          </p>
+
           <form className="form-form" onSubmit={handleSubmit}>
             <div className="email-row">
               <input
@@ -36,28 +41,12 @@ export default function Login() {
                 className="form-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                autoComplete="username"
+                autoComplete="email"
               />
               <span className="email-domain">@souunit.com.br</span>
             </div>
-            <input
-              type="password"
-              placeholder="Senha"
-              className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
-
-            <div className="login-links">
-              {/* 2. SUBSTITUIR 'a' POR 'Link' E 'href' POR 'to' */}
-              <Link to="/esqueceu-senha" className="login-forgot">
-                Esqueceu a Senha?
-              </Link>
-            </div>
-
             <button type="submit" className="form-btn">
-              Entrar
+              Enviar Código
             </button>
           </form>
         </section>

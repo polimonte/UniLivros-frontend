@@ -1,65 +1,100 @@
-.home-header {
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+.app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 48px;
+  padding: 20px 50px;
   background: #F9E7DC;
-  border-bottom-left-radius: 18px;
-  border-bottom-right-radius: 18px;
-  height: 80px;
-  /* altura fixa opcional para centralizar */
+  /* Cor de fundo principal */
+  font-family: 'Montserrat', sans-serif;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  /* Sutil sombra */
+  height: 90px;
+  box-sizing: border-box;
 }
 
-.home-logo {
-  font-size: 2rem;
-  font-weight: bold;
+.header-logo .logo-text {
+  font-size: 1.8rem;
+  font-weight: 700;
   color: #4B2E2E;
-  letter-spacing: 1px;
+  /* Cor do texto principal */
+  text-decoration: none;
+}
+
+.header-nav {
   display: flex;
-  align-items: center;
-  height: 100%;
+  gap: 15px;
+  /* Espaço entre os botões */
 }
 
-.btn-cadastro {
+.header-btn {
+  padding: 12px 25px;
+  border-radius: 16px;
+  /* Borda arredondada como nos formulários */
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  font-family: 'Montserrat', sans-serif;
+  text-align: center;
+}
+
+.header-btn.primary {
   background: #F9B233;
-  color: #4B2E2E;
+  /* Cor primária de destaque */
+  color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 10px 22px;
-  margin-right: 16px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: inline-flex;
-  align-items: center;
-  height: 40px;
 }
 
-.btn-cadastro:hover {
+.header-btn.primary:hover {
   background: #e6a91f;
+  /* Escurece no hover */
 }
 
-.btn-login {
-  background: #fff;
-  color: #4B2E2E;
-  border: 1px solid #4B2E2E;
-  border-radius: 8px;
-  padding: 10px 22px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: inline-flex;
-  align-items: center;
-  height: 40px;
-}
-
-.btn-login:hover {
-  background: #f6e3c7;
-}
-
-.home-logo:hover {
+.header-btn.secondary {
+  background: none;
+  border: 2px solid #F9B233;
+  /* Borda da cor primária */
   color: #F9B233;
-  cursor: pointer;
+}
+
+.header-btn.secondary:hover {
+  background: #F9B233;
+  color: #fff;
+}
+
+/* Responsividade básica para o header */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 15px 20px;
+  }
+
+  .header-logo .logo-text {
+    font-size: 1.5rem;
+  }
+
+  .header-btn {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    flex-direction: column;
+    height: auto;
+    gap: 15px;
+  }
+
+  .header-nav {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .header-btn {
+    flex: 1;
+    /* Faz os botões ocuparem espaço igual */
+    margin: 0 5px;
+  }
 }

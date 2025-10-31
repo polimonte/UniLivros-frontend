@@ -1,21 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./Header.css";
+import "./Header.css"; // Importa o CSS do Header
 
 export default function Header() {
   return (
-    <header className="home-header">
-      <Link to="/" className="home-logo" style={{ textDecoration: "none" }}>
-        UniLivros
-      </Link>
-      <div>
-        <Link to="/cadastro">
-          <button className="btn-cadastro">Cadastre-se</button>
-        </Link>
-        <Link to="/login">
-          <button className="btn-login">Login</button>
+    <header className="app-header">
+      <div className="header-logo">
+        <Link to="/" className="logo-text">
+          UniLivros
         </Link>
       </div>
+      <nav className="header-nav">
+        <Link to="/cadastro" className="header-btn primary">
+          Cadastre-se
+        </Link>
+        <Link to="/login" className="header-btn secondary">
+          Login
+        </Link>
+      </nav>
     </header>
   );
 }

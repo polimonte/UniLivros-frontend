@@ -1,18 +1,19 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import "./Forms.css"; // <-- Importa APENAS o CSS centralizado
+import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
 
 export default function Cadastro() {
   const [email, setEmail] = useState("");
-  const [name, setName] = useState(""); // <-- Estado para nome
-  const [matricula, setMatricula] = useState(""); // <-- Estado para matricula
-  const [password, setPassword] = useState(""); // <-- Estado para senha
-  const [confirmPassword, setConfirmPassword] = useState(""); // <-- Estado para confirmar senha
+  const [name, setName] = useState("");
+  const [matricula, setMatricula] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
 
-  // --- Função de Envio ---
   const handleSubmit = (event) => {
-    event.preventDefault(); // Impede o recarregamento
+    event.preventDefault();
 
     if (!name || !email || !matricula || !password || !confirmPassword) {
       alert("Por favor, preencha todos os campos.");
@@ -25,35 +26,36 @@ export default function Cadastro() {
 
     console.log("--- Dados do Cadastro ---");
     console.log("Nome:", name);
-    console.log("Usuário:", email);
+    console.log("Email:", email);
     console.log("Matrícula:", matricula);
     console.log("Senha:", password);
-    alert("Cadastro simulado com sucesso! Verifique o console (F12).");
+
+    alert("Cadastro simulado com sucesso! Confirme o código.");
+
+    navigate("/confirmar-cadastro");
   };
 
   return (
-    // Classes renomeadas para 'form-'
     <div className="form-bg">
       <Header />
       <main className="form-main">
         <section className="form-card">
           <img src={bookIcon} alt="Ícone de livro" className="form-icon" />
 
-          {/* Adiciona o 'onSubmit' */}
           <form className="form-form" onSubmit={handleSubmit}>
             <input
               type="text"
               placeholder="Nome"
-              className="form-input" // Classe 'form-input'
-              value={name} // <-- Controla o valor
-              onChange={(e) => setName(e.target.value)} // <-- Atualiza o estado
+              className="form-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               autoComplete="name"
             />
             <div className="email-row">
               <input
                 type="text"
-                placeholder="Usuário"
-                className="form-input" // Classe 'form-input'
+                placeholder="Email"
+                className="form-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -63,30 +65,28 @@ export default function Cadastro() {
             <input
               type="text"
               placeholder="Matrícula"
-              className="form-input" // Classe 'form-input'
-              value={matricula} // <-- Controla o valor
-              onChange={(e) => setMatricula(e.target.value)} // <-- Atualiza o estado
+              className="form-input"
+              value={matricula}
+              onChange={(e) => setMatricula(e.target.value)}
               autoComplete="off"
             />
             <input
               type="password"
               placeholder="Senha"
-              className="form-input" // Classe 'form-input'
-              value={password} // <-- Controla o valor
-              onChange={(e) => setPassword(e.target.value)} // <-- Atualiza o estado
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
             />
             <input
               type="password"
               placeholder="Confirmação de senha"
-              className="form-input" // Classe 'form-input'
-              value={confirmPassword} // <-- Controla o valor
-              onChange={(e) => setConfirmPassword(e.target.value)} // <-- Atualiza o estado
+              className="form-input"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
             />
             <button type="submit" className="form-btn">
-              {" "}
-              {/* Classe 'form-btn' */}
               Cadastrar
             </button>
           </form>

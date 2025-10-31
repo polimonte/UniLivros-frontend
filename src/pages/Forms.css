@@ -110,3 +110,15 @@
 .form-btn:hover {
   background: #e6a91f;
 }
+
+.form-info-text {
+  font-size: 1rem;
+  color: #4B2E2E;
+  /* Cor de texto padrão */
+  text-align: center;
+  line-height: 1.5;
+  margin-top: -8px;
+  /* Puxa o texto um pouco para cima */
+  margin-bottom: 24px;
+  /* Espaço antes do formulário */
+}
