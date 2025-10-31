@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
-.cadastro-bg {
+/* Estilos de Fundo e Layout Principal */
+.form-bg {
   background: #F9E7DC;
   min-height: 100vh;
   width: 100vw;
@@ -8,7 +9,7 @@
   overflow-x: hidden;
 }
 
-.cadastro-main {
+.form-main {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,8 +17,8 @@
   width: 100vw;
 }
 
-.login-card,
-.cadastro-card {
+/* Card Principal do Formulário */
+.form-card {
   background: #F6E3C7;
   border-radius: 32px;
   box-shadow: 0 4px 24px #0001;
@@ -29,27 +30,23 @@
   align-items: center;
 }
 
+.form-icon {
+  width: 48px;
+  margin-bottom: 24px;
+}
+
+.form-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Linha especial para o e-mail */
 .email-row {
   display: flex;
   align-items: stretch;
-  /* faz ambos ficarem com a mesma altura */
   margin-bottom: 18px;
-}
-
-.cadastro-input {
-  flex: 1;
-  background: #fff;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px #0001;
-  padding: 16px;
-  font-size: 1.1rem;
-  outline: none;
-  color: #4B2E2E;
-  font-family: 'Montserrat', sans-serif;
-  height: 52px;
-  /* altura fixa para garantir alinhamento */
-  box-sizing: border-box;
 }
 
 .email-domain {
@@ -65,41 +62,38 @@
   padding: 0 18px;
   box-shadow: 0 2px 8px #0001;
   height: 52px;
-  /* mesma altura do input */
   box-sizing: border-box;
 }
 
-
-.cadastro-icon {
-  width: 48px;
-  margin-bottom: 24px;
-}
-
-.cadastro-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.cadastro-input {
+/* Inputs e Botões */
+.form-input {
+  flex: 1;
+  /* Permite que o input de email cresça na .email-row */
   background: #fff;
   border: none;
   border-radius: 12px;
   box-shadow: 0 2px 8px #0001;
   padding: 16px;
   font-size: 1.1rem;
-  margin-bottom: 18px;
   outline: none;
   color: #4B2E2E;
   font-family: 'Montserrat', sans-serif;
+  height: 52px;
+  box-sizing: border-box;
+  margin-bottom: 18px;
+  /* Espaçamento padrão */
 }
 
-.cadastro-input:focus {
+.email-row .form-input {
+  margin-bottom: 0;
+  /* Remove margem do input dentro da .email-row */
+}
+
+.form-input:focus {
   box-shadow: 0 2px 12px #F9B23355;
 }
 
-.cadastro-btn {
+.form-btn {
   background: #F9B233;
   color: #fff;
   border: none;
@@ -113,6 +107,6 @@
   font-family: 'Montserrat', sans-serif;
 }
 
-.cadastro-btn:hover {
+.form-btn:hover {
   background: #e6a91f;
 }
