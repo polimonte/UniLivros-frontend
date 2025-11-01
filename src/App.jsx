@@ -12,6 +12,7 @@ import NovaSenha from "./pages/NovaSenha";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import LivroDetalhes from "./pages/LivroDetalhes";
+import MinhasTrocas from "./pages/MinhasTrocas";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/livro/:id" element={<LivroDetalhes />} />
+          <Route path="/minhas-trocas" element={<MinhasTrocas />} />
         </Route>
       </Routes>
     </BrowserRouter>

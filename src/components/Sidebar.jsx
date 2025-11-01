@@ -27,6 +27,10 @@ export default function Sidebar({ isOpen, onClose }) {
           <span className="sidebar-link-icon add-icon">+</span>
           <span className="sidebar-link-text">Adicionar Livro</span>
         </Link>
+        <Link to="/minhas-trocas" className="sidebar-link" onClick={onClose}>
+          <span className="sidebar-link-icon">&#128213;</span>
+          <span className="sidebar-link-text">Minhas trocas</span>
+        </Link>
         <Link to="#" className="sidebar-link" onClick={onClose}>
           <span className="sidebar-link-icon">&#9881;</span>
           <span className="sidebar-link-text">Configurações</span>

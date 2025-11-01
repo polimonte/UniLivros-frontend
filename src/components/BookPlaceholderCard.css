@@ -1,0 +1,23 @@
+.book-placeholder-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 200 / 280;
+  height: 280px;
+  background-color: #EAEAEA;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.book-placeholder-card:hover {
+  background-color: #DADADA;
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  color: #B0B0B0;
+  font-weight: 200;
+  line-height: 1;
+}

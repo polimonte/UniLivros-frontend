@@ -21,6 +21,18 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.book-card-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #EAEAEA;
+  border-radius: 8px;
+  font-size: 4rem;
+  color: #B0B0B0;
+}
+
 .book-card-title {
   font-size: 1rem;
   font-weight: 700;
@@ -36,7 +48,6 @@
 
 .book-card-btn {
   background-color: #8BC34A;
-  /* Verde do botão "Trocar" */
   color: white;
   border: none;
   border-radius: 8px;
@@ -46,19 +57,40 @@
   cursor: pointer;
   margin-top: 10px;
   transition: background-color 0.2s;
+  display: block;
+  text-align: center;
+  text-decoration: none;
 }
 
 .book-card-btn:hover {
   background-color: #79a93f;
 }
 
+.book-card-btn.btn-default {
+  background-color: transparent;
+  color: #F9B233;
+  border: 1px solid #F9B233;
+}
+
+.book-card-btn.btn-default:hover {
+  background-color: #F9B233;
+  color: #fff;
+}
+
+.book-card-btn.btn-disabled {
+  background-color: #EAEAEA;
+  color: #B0B0B0;
+  border: 1px solid #DADADA;
+  cursor: not-allowed;
+}
+
+.book-card-btn.btn-disabled:hover {
+  background-color: #EAEAEA;
+  color: #B0B0B0;
+  border-color: #DADADA;
+}
+
 .book-card-image-link {
   text-decoration: none;
   display: block;
-}
-
-.book-card-btn {
-  display: block;
-  text-align: center;
-  text-decoration: none;
 }
