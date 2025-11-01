@@ -1,0 +1,76 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 300px;
+  background-color: #F6E3C7;
+  color: #4B2E2E;
+  font-family: 'Montserrat', sans-serif;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 30px;
+}
+
+.sidebar-close-btn {
+  background: none;
+  border: none;
+  font-size: 3rem;
+  font-weight: 300;
+  color: #4B2E2E;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 15px;
+  text-decoration: none;
+  color: #4B2E2E;
+  font-weight: 500;
+  font-size: 1.1rem;
+  transition: background-color 0.2s;
+  border-radius: 12px;
+}
+
+.sidebar-link.active,
+.sidebar-link:hover {
+  background-color: #E0CBB3;
+  font-weight: 700;
+}
+
+.sidebar-link-icon {
+  font-size: 1.5rem;
+  width: 30px;
+  text-align: center;
+  display: inline-block;
+  line-height: 1;
+}
+
+.sidebar-link-icon.add-icon {
+  font-weight: 700;
+  font-size: 1.8rem;
+}

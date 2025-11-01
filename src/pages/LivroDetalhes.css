@@ -1,0 +1,100 @@
+.detalhes-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+  width: 100%;
+}
+
+.detalhes-coluna-esquerda {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.detalhes-info-livro .detalhes-titulo {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.detalhes-info-livro .detalhes-autor {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 5px 0 15px 0;
+  color: #555;
+}
+
+.detalhes-tags {
+  display: flex;
+  gap: 20px;
+  font-size: 0.9rem;
+}
+
+.detalhes-sinopse {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.detalhes-sinopse p {
+  margin-bottom: 1em;
+}
+
+.detalhes-avaliacao h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.detalhes-avaliacao .estrelas {
+  font-size: 1.5rem;
+  color: #F9B233;
+}
+
+.detalhes-coluna-direita {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: sticky;
+  top: 30px;
+  align-self: start;
+}
+
+.detalhes-capa {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  margin-bottom: 15px;
+}
+
+.btn-ver-imagem,
+.btn-solicitar {
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+}
+
+.btn-ver-imagem {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  color: #4B2E2E;
+  margin-bottom: 10px;
+}
+
+.btn-solicitar {
+  background-color: #8BC34A;
+  border: none;
+  color: white;
+}
+
+.btn-solicitar:hover {
+  background-color: #79a93f;
+}
+
+.btn-solicitar.solicitado {
+  background-color: #b0b0b0;
+  color: #fff;
+  cursor: not-allowed;
+}

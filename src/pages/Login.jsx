@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // <-- 1. IMPORTAR LINK
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import "./Forms.css";
 import "./Login.css";
@@ -8,6 +8,7 @@ import bookIcon from "../assets/book-icon.jpg";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -15,10 +16,13 @@ export default function Login() {
       alert("Por favor, preencha o usuário e a senha.");
       return;
     }
+
     console.log("--- Dados do Login ---");
     console.log("Usuário:", email);
     console.log("Senha:", password);
-    alert("Login simulado com sucesso! Verifique o console (F12).");
+    alert("Login simulado com sucesso! Redirecionando...");
+
+    navigate("/dashboard");
   };
 
   return (
@@ -50,7 +54,6 @@ export default function Login() {
             />
 
             <div className="login-links">
-              {/* 2. SUBSTITUIR 'a' POR 'Link' E 'href' POR 'to' */}
               <Link to="/esqueceu-senha" className="login-forgot">
                 Esqueceu a Senha?
               </Link>

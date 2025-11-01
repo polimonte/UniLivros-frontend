@@ -1,0 +1,25 @@
+.layout-container {
+  background-color: #F9E7DC;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  color: #4B2E2E;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.layout-content {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 20px 40px;
+  box-sizing: border-box;
+}

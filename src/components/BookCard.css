@@ -1,0 +1,64 @@
+.book-card {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
+  width: 200px;
+  text-align: left;
+  color: #4B2E2E;
+}
+
+.book-card-image-wrapper {
+  width: 100%;
+  height: 280px;
+  margin-bottom: 12px;
+}
+
+.book-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.book-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.book-card-author,
+.book-card-year {
+  font-size: 0.85rem;
+  margin: 0;
+  color: #777;
+}
+
+.book-card-btn {
+  background-color: #8BC34A;
+  /* Verde do botão "Trocar" */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.book-card-btn:hover {
+  background-color: #79a93f;
+}
+
+.book-card-image-link {
+  text-decoration: none;
+  display: block;
+}
+
+.book-card-btn {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
