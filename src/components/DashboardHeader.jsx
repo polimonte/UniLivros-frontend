@@ -22,7 +22,12 @@ export default function DashboardHeader({ onMenuClick }) {
 
         <nav className="dash-header-right">
           <button className="dash-icon-btn add-btn">+</button>
-          <button className="dash-icon-btn profile-btn">&#128100;</button>
+          <Link
+            to="/perfil/jonatas-lopes"
+            className="dash-icon-btn profile-btn"
+          >
+            &#128100;
+          </Link>
         </nav>
       </div>
 

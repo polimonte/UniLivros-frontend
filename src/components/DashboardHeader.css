@@ -108,3 +108,19 @@
   font-weight: 500;
   font-size: 0.95rem;
 }
+
+.dash-icon-btn {
+  background: none;
+  border: 2px solid #4B2E2E;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #4B2E2E;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}

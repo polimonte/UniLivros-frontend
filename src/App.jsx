@@ -13,6 +13,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import LivroDetalhes from "./pages/LivroDetalhes";
 import MinhasTrocas from "./pages/MinhasTrocas";
+import Perfil from "./pages/Perfil";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/livro/:id" element={<LivroDetalhes />} />
           <Route path="/minhas-trocas" element={<MinhasTrocas />} />
+          <Route path="/perfil/:id" element={<Perfil />} />
         </Route>
       </Routes>
     </BrowserRouter>
