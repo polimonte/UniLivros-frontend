@@ -16,6 +16,7 @@ import MinhasTrocas from "./pages/MinhasTrocas";
 import Perfil from "./pages/Perfil";
 import MinhaEstante from "./pages/MinhaEstante";
 import Sobre from "./pages/Sobre";
+import Notificacoes from "./pages/Notificacoes";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path="/perfil/:id" element={<Perfil />} />
           <Route path="/minha-estante" element={<MinhaEstante />} />
           <Route path="/sobre" element={<Sobre />} />
+          <Route path="/notificacoes" element={<Notificacoes />} />
         </Route>
       </Routes>
     </BrowserRouter>

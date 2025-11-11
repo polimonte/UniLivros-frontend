@@ -27,7 +27,7 @@ export default function Sidebar({ isOpen, onClose }) {
             <span className="sidebar-link-icon">&#8962;</span>
             <span className="sidebar-link-text">Página Inicial</span>
           </Link>
-          <Link to="#" className="sidebar-link" onClick={onClose}>
+          <Link to="/notificacoes" className="sidebar-link" onClick={onClose}>
             <span className="sidebar-link-icon">&#128276;</span>
             <span className="sidebar-link-text">Notificações</span>
           </Link>
@@ -41,7 +41,7 @@ export default function Sidebar({ isOpen, onClose }) {
           </Link>
           <Link to="/minhas-trocas" className="sidebar-link" onClick={onClose}>
             <span className="sidebar-link-icon">&#128213;</span>
-            <span className="sidebar-link-text">Minhas Trocas</span>
+            <span className="sidebar-link-text">Minhas trocas</span>
           </Link>
           <Link
             to="/perfil/jonatas-lopes"
