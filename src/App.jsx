@@ -15,6 +15,7 @@ import LivroDetalhes from "./pages/LivroDetalhes";
 import MinhasTrocas from "./pages/MinhasTrocas";
 import Perfil from "./pages/Perfil";
 import MinhaEstante from "./pages/MinhaEstante";
+import Sobre from "./pages/Sobre";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/minhas-trocas" element={<MinhasTrocas />} />
           <Route path="/perfil/:id" element={<Perfil />} />
           <Route path="/minha-estante" element={<MinhaEstante />} />
+          <Route path="/sobre" element={<Sobre />} />
         </Route>
       </Routes>
     </BrowserRouter>

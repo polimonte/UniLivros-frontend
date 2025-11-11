@@ -1,7 +1,7 @@
 import React from "react";
 import Header from "../components/Header";
-import "./Home.css"; // Importa o CSS da Home
-import heroImage from "../assets/books-illustration.png"; // Ajuste o caminho se necessário
+import "./Home.css";
+import heroImage from "../assets/books-illustration.png";
 
 export default function Home() {
   return (
@@ -16,9 +16,8 @@ export default function Home() {
             </h1>
           </div>
           <div className="hero-image-wrapper">
-            {/* Imagem do hero que você forneceu */}
             <img
-              src={heroImage}
+              Src={heroImage}
               alt="Pessoas compartilhando livros"
               className="hero-image"
             />
@@ -32,6 +31,35 @@ export default function Home() {
             livros, conhecer novos leitores e transformar cada encontro em uma
             nova história.
           </p>
+        </section>
+
+        <section className="sobre-section">
+          <h3 className="sobre-section-title" style={{ textAlign: "center" }}>
+            COMO FUNCIONA?
+          </h3>
+          <div className="como-funciona-grid">
+            <div className="como-funciona-card">
+              <span className="card-number">01</span>
+              <p className="card-text">
+                Cadastre os livros que você já leu e não quer mais deixar
+                parados.
+              </p>
+            </div>
+            <div className="como-funciona-card">
+              <span className="card-number">02</span>
+              <p className="card-text">
+                Explore a estante virtual de outros estudantes e encontre seu
+                próximo livro favorito.
+              </p>
+            </div>
+            <div className="como-funciona-card">
+              <span className="card-number">03</span>
+              <p className="card-text">
+                Solicite a troca, combine um local seguro dentro do campus e
+                pronto! Boa leitura!
+              </p>
+            </div>
+          </div>
         </section>
       </main>
     </div>

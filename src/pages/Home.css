@@ -1,28 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
-/* Container Geral da Página Home */
 .home-container {
   background: #F9E7DC;
-  /* Cor de fundo principal */
   min-height: 100vh;
   width: 100vw;
   font-family: 'Montserrat', sans-serif;
   color: #4B2E2E;
-  /* Cor de texto padrão */
   overflow-x: hidden;
-  /* Evita scroll horizontal indesejado */
 }
 
-/* Main Content */
 .home-main {
   padding: 40px 50px;
   max-width: 1200px;
-  /* Limita a largura do conteúdo para melhor leitura */
   margin: 0 auto;
-  /* Centraliza o conteúdo */
 }
 
-/* Seção Hero (Título + Imagem) */
 .hero-section {
   display: flex;
   justify-content: space-between;
@@ -30,14 +22,11 @@
   gap: 40px;
   margin-bottom: 80px;
   flex-wrap: wrap;
-  /* Permite quebrar linha em telas pequenas */
 }
 
 .hero-content {
   flex: 1;
-  /* Ocupa o espaço disponível */
   min-width: 300px;
-  /* Evita que o texto fique muito espremido */
 }
 
 .hero-title {
@@ -50,15 +39,11 @@
 
 .hero-image-wrapper {
   background: #FFDDEE;
-  /* Cor de fundo rosa suave da imagem */
   border-radius: 40px;
-  /* Borda arredondada */
   padding: 20px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
-  /* Impede que a imagem encolha demais */
   max-width: 50%;
-  /* Limita a largura da imagem */
 }
 
 .hero-image {
@@ -66,29 +51,74 @@
   max-width: 100%;
   height: auto;
   border-radius: 20px;
-  /* Borda da imagem interna */
 }
 
-/* Seção Sobre (Texto Descritivo) */
+.sobre-section {
+  background-color: #F6E3C7;
+  border-radius: 20px;
+  padding: 30px;
+  margin-top: 30px;
+  margin-bottom: 25px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.sobre-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4B2E2E;
+  margin-top: 0;
+  margin-bottom: 35px;
+}
+
+.como-funciona-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.como-funciona-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  position: relative;
+  min-height: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card-number {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #F9B233;
+  opacity: 0.8;
+  position: absolute;
+  top: -35px;
+  right: 310px;
+}
+
+.card-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #4B2E2E;
+  line-height: 1.5;
+  margin: 0;
+  position: relative;
+  z-index: 2;
+}
+
 .about-section {
   display: flex;
   justify-content: flex-end;
-  /* Alinha o texto à direita */
+  margin-top: 60px;
 }
 
 .about-text {
   font-size: 1.3rem;
   line-height: 1.6;
   max-width: 600px;
-  /* Limita a largura do parágrafo para legibilidade */
   text-align: right;
   color: #4B2E2E;
   margin: 0;
 }
-
-/* =========================================
-   Responsividade
-   ========================================= */
 
 @media (max-width: 1024px) {
   .home-main {
@@ -116,22 +146,18 @@
 
   .hero-section {
     flex-direction: column;
-    /* Empilha os elementos em telas menores */
     text-align: center;
     margin-bottom: 60px;
   }
 
   .hero-content {
     order: 2;
-    /* Move o conteúdo para baixo da imagem */
     margin-top: 30px;
   }
 
   .hero-image-wrapper {
     order: 1;
-    /* Move a imagem para cima do conteúdo */
     max-width: 80%;
-    /* Aumenta a largura da imagem */
     margin: 0 auto;
   }
 
@@ -141,7 +167,7 @@
 
   .about-section {
     justify-content: center;
-    /* Centraliza o texto "Sobre" */
+    margin-top: 40px;
   }
 
   .about-text {

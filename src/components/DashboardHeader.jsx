@@ -29,7 +29,7 @@ export default function DashboardHeader({ onMenuClick }) {
         <Link to="/minha-estante">Minha Estante</Link>
         <Link to="/minhas-trocas">Minhas trocas</Link>
         <Link to="#">Minhas propostas</Link>
-        <Link to="#">Sobre</Link>
+        <Link to="/sobre">Sobre</Link>
       </div>
     </header>
   );

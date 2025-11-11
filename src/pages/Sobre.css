@@ -1,0 +1,46 @@
+.sobre-main {
+  width: 100%;
+}
+
+.sobre-hero {
+  text-align: center;
+  padding: 20px 0;
+  margin-bottom: 25px;
+}
+
+.sobre-hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #F9B233;
+  margin: 0;
+}
+
+.sobre-hero-subtitle {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #4B2E2E;
+  margin: 0;
+}
+
+.sobre-section {
+  background-color: #F6E3C7;
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 25px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.sobre-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4B2E2E;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.sobre-section-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #4B2E2E;
+  margin: 0;
+}
