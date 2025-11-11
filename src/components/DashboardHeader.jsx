@@ -26,9 +26,9 @@ export default function DashboardHeader({ onMenuClick }) {
       </div>
 
       <div className="dash-nav-links">
-        <Link to="#">Minha Estante</Link>
-        <Link to="/minhas-trocas">Minhas Trocas</Link>
-        <Link to="#">Minhas Propostas</Link>
+        <Link to="/minha-estante">Minha Estante</Link>
+        <Link to="/minhas-trocas">Minhas trocas</Link>
+        <Link to="#">Minhas propostas</Link>
         <Link to="#">Sobre</Link>
       </div>
     </header>
