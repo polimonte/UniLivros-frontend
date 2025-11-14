@@ -1,0 +1,114 @@
+.propostas-main {
+  width: 100%;
+}
+
+.propostas-title {
+  color: #4B2E2E;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+.propostas-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #E0CBB3;
+}
+
+.propostas-tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  color: #888;
+  cursor: pointer;
+  position: relative;
+  top: 1px;
+}
+
+.propostas-tab-btn.active {
+  color: #4B2E2E;
+  font-weight: 700;
+  border-bottom: 3px solid #F9B233;
+}
+
+.propostas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.proposta-modal-title {
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #4B2E2E;
+  text-align: center;
+}
+
+.proposta-modal-section {
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.proposta-modal-section p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.proposta-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.proposta-modal-close-btn,
+.btn-aceitar,
+.btn-recusar {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+  border: none;
+}
+
+.proposta-modal-close-btn {
+  background-color: #F9B233;
+  color: #fff;
+  margin-top: 10px;
+}
+
+.proposta-modal-close-btn:hover {
+  background-color: #e6a91f;
+}
+
+.btn-aceitar {
+  background-color: #8BC34A;
+  color: white;
+}
+
+.btn-aceitar:hover {
+  background-color: #79a93f;
+}
+
+.btn-recusar {
+  background-color: #fff;
+  color: #E53935;
+  border: 1px solid #E53935;
+}
+
+.btn-recusar:hover {
+  background-color: #E53935;
+  color: #fff;
+}
