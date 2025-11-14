@@ -18,8 +18,57 @@
   margin-bottom: 25px;
 }
 
-.book-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 30px;
+.trocas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.trade-modal-title {
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #4B2E2E;
+  text-align: center;
+}
+
+.trade-modal-section {
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.trade-modal-subtitle {
+  font-size: 1.1rem;
+  margin-top: 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #E0CBB3;
+  padding-bottom: 5px;
+}
+
+.trade-modal-section p {
+  margin: 5px 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.trade-modal-close-btn {
+  background-color: #F9B233;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 25px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.trade-modal-close-btn:hover {
+  background-color: #e6a91f;
 }

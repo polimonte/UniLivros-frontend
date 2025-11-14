@@ -1,0 +1,72 @@
+.trade-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  background-color: #F6E3C7;
+  border: 1px solid #E0CBB3;
+  border-radius: 12px;
+  padding: 20px;
+  font-family: 'Montserrat', sans-serif;
+  color: #4B2E2E;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.trade-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.trade-book {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-book img {
+  width: 40px;
+  height: 55px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.trade-book span {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trade-icon {
+  font-size: 1.5rem;
+  color: #888;
+}
+
+.trade-status-wrapper {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 15px;
+}
+
+.trade-status {
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: #fff;
+}
+
+.trade-status.concluída {
+  background-color: #8BC34A;
+}
+
+.trade-status.pendente {
+  background-color: #F9B233;
+}
+
+.trade-status.cancelada {
+  background-color: #b0b0b0;
+}
