@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import Header from "../components/Header";
 import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
@@ -16,11 +17,11 @@ export default function Cadastro() {
     event.preventDefault();
 
     if (!name || !email || !matricula || !password || !confirmPassword) {
-      alert("Por favor, preencha todos os campos.");
+      toast.error("Por favor, preencha todos os campos.");
       return;
     }
     if (password !== confirmPassword) {
-      alert("As senhas não conferem!");
+      toast.error("As senhas não conferem!");
       return;
     }
 
@@ -30,7 +31,7 @@ export default function Cadastro() {
     console.log("Matrícula:", matricula);
     console.log("Senha:", password);
 
-    alert("Cadastro simulado com sucesso! Confirme o código.");
+    toast.success("Cadastro realizado! Confirme o código.");
 
     navigate("/confirmar-cadastro");
   };

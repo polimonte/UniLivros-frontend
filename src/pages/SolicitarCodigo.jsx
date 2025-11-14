@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import Header from "../components/Header";
 import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
@@ -11,13 +12,13 @@ export default function SolicitarCodigo() {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!email) {
-      alert("Por favor, preencha seu e-mail.");
+      toast.error("Por favor, preencha seu e-mail.");
       return;
     }
 
     console.log("--- Solicitação de Código ---");
     console.log("E-mail:", email);
-    alert("Código enviado (simulado)! Redirecionando...");
+    toast.success("Código enviado (simulado)! Redirecionando...");
 
     navigate("/confirmar-codigo");
   };

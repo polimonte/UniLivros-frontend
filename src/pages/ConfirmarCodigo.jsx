@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import Header from "../components/Header";
 import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
@@ -11,12 +12,12 @@ export default function ConfirmarCodigo() {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!codigo) {
-      alert("Por favor, insira o código de confirmação.");
+      toast.error("Por favor, insira o código de confirmação.");
       return;
     }
     console.log("--- Código de Confirmação ---");
     console.log("Código:", codigo);
-    alert("Código validado (simulado)! Defina sua nova senha.");
+    toast.success("Código validado! Defina sua nova senha.");
 
     navigate("/nova-senha");
   };

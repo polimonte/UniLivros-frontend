@@ -1,20 +1,26 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import Header from "../components/Header";
 import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
 
 export default function ConfirmarCadastro() {
   const [codigo, setCodigo] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!codigo) {
-      alert("Por favor, insira o código de confirmação.");
+      toast.error("Por favor, insira o código de confirmação.");
       return;
     }
     console.log("--- Código de Confirmação de Cadastro ---");
     console.log("Código:", codigo);
-    alert("Cadastro confirmado com sucesso (simulado)!");
+
+    navigate("/login", {
+      state: { message: "Cadastro confirmado com sucesso! Faça seu login." },
+    });
   };
 
   return (

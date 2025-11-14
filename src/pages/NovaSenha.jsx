@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import Header from "../components/Header";
 import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
@@ -13,20 +14,20 @@ export default function NovaSenha() {
     event.preventDefault();
 
     if (!password || !confirmPassword) {
-      alert("Por favor, preencha todos os campos.");
+      toast.error("Por favor, preencha todos os campos.");
       return;
     }
     if (password !== confirmPassword) {
-      alert("As senhas não conferem!");
+      toast.error("As senhas não conferem!");
       return;
     }
 
     console.log("--- Nova Senha ---");
     console.log("Senha definida:", password);
 
-    alert("Senha redefinida com sucesso! Faça o login.");
-
-    navigate("/login");
+    navigate("/login", {
+      state: { message: "Senha redefinida com sucesso! Faça seu login." },
+    });
   };
 
   return (

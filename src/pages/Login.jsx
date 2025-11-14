@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 import Header from "../components/Header";
 import "./Forms.css";
 import "./Login.css";
@@ -9,18 +10,28 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const toastShownRef = useRef(false);
+
+  useEffect(() => {
+    if (location.state?.message && !toastShownRef.current) {
+      toast.success(location.state.message);
+      toastShownRef.current = true;
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!email || !password) {
-      alert("Por favor, preencha o usuário e a senha.");
+      toast.error("Por favor, preencha o usuário e a senha.");
       return;
     }
 
     console.log("--- Dados do Login ---");
     console.log("Usuário:", email);
     console.log("Senha:", password);
-    alert("Login simulado com sucesso! Redirecionando...");
+    toast.success("Login realizado com sucesso!");
 
     navigate("/dashboard");
   };
