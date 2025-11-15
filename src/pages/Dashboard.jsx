@@ -1,14 +1,47 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import BookCard from "../components/BookCard";
 import "./Dashboard.css";
-
-import carasCoracoesImg from "../assets/books/caras-coracoes.jpg";
-import harryPotterImg from "../assets/books/harry-potter.jpg";
-import magicoOzImg from "../assets/books/magico-oz.jpg";
-import memoriasPostumasImg from "../assets/books/memorias-postumas.jpg";
 import heroBannerImg from "../assets/hero-banner.jpg";
 
 export default function Dashboard() {
+  const [books, setBooks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchBooks() {
+      try {
+        const response = await fetch(
+          "https://www.googleapis.com/books/v1/volumes?q=literatura+brasileira&maxResults=8"
+        );
+        if (!response.ok) {
+          throw new Error("Falha ao buscar dados da API");
+        }
+        const data = await response.json();
+
+        const processedBooks = data.items.map((item) => ({
+          id: item.id,
+          title: item.volumeInfo.title,
+          author: item.volumeInfo.authors
+            ? item.volumeInfo.authors[0]
+            : "Autor desconhecido",
+          imgSrc: item.volumeInfo.imageLinks?.thumbnail,
+          year: item.volumeInfo.publishedDate
+            ? item.volumeInfo.publishedDate.substring(0, 4)
+            : "N/A",
+        }));
+
+        setBooks(processedBooks);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchBooks();
+  }, []);
+
   return (
     <main className="dashboard-main">
       <section className="dashboard-hero">
@@ -26,36 +59,25 @@ export default function Dashboard() {
 
       <section className="book-list-section">
         <h2 className="section-title">Livros Destaques</h2>
-        <div className="book-grid">
-          <BookCard
-            id="caras-e-coracoes"
-            imgSrc={carasCoracoesImg}
-            title="Caras e Corações"
-            author="Thomas Lopes"
-            year="1990"
-          />
-          <BookCard
-            id="harry-potter"
-            imgSrc={harryPotterImg}
-            title="O Prisioneiro de Azkaban"
-            author="J.K. Rowling"
-            year="2004"
-          />
-          <BookCard
-            id="magico-de-oz"
-            imgSrc={magicoOzImg}
-            title="Mágico de Oz"
-            author="L. Frank Baum"
-            year="1984"
-          />
-          <BookCard
-            id="memorias-postumas"
-            imgSrc={memoriasPostumasImg}
-            title="Memórias Póstumas"
-            author="Machado de Assis"
-            year="1881"
-          />
-        </div>
+
+        {isLoading && <p>Carregando livros...</p>}
+        {error && <p>Erro ao carregar livros: {error}</p>}
+
+        {!isLoading && !error && (
+          <div className="book-grid">
+            {books.map((book) => (
+              <BookCard
+                key={book.id}
+                id={book.id}
+                imgSrc={book.imgSrc}
+                title={book.title}
+                author={book.author}
+                year={book.year}
+                buttonStyle="default"
+              />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

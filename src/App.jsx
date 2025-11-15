@@ -20,6 +20,7 @@ import MinhaEstante from "./pages/MinhaEstante";
 import Sobre from "./pages/Sobre";
 import Notificacoes from "./pages/Notificacoes";
 import MinhasPropostas from "./pages/MinhasPropostas";
+import ResultadoPesquisa from "./pages/ResultadoPesquisa";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/notificacoes" element={<Notificacoes />} />
           <Route path="/minhas-propostas" element={<MinhasPropostas />} />
+          <Route path="/pesquisa" element={<ResultadoPesquisa />} />
         </Route>
       </Routes>
     </BrowserRouter>

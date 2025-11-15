@@ -1,8 +1,21 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "./DashboardHeader.css";
 
-export default function DashboardHeader({ onMenuClick }) {
+export default function DashboardHeader() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (!searchTerm.trim()) {
+      toast.error("Por favor, digite um termo para pesquisar.");
+      return;
+    }
+    navigate(`/pesquisa?q=${encodeURIComponent(searchTerm)}`);
+  };
+
   return (
     <header className="dash-header">
       <div className="dash-header-top">
@@ -12,16 +25,26 @@ export default function DashboardHeader({ onMenuClick }) {
           </Link>
         </div>
 
-        <div className="dash-search-bar">
-          <input type="text" placeholder="O que você está procurando?" />
-          <button className="search-icon">&#128269;</button>
-        </div>
+        <form className="dash-search-bar" onSubmit={handleSearchSubmit}>
+          <input
+            type="text"
+            placeholder="O que você está procurando?"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button type="submit" className="search-icon">
+            &#128269;
+          </button>
+        </form>
 
         <nav className="dash-header-right">
           <button className="dash-icon-btn add-btn">+</button>
-          <button className="dash-icon-btn profile-btn" onClick={onMenuClick}>
+          <Link
+            to="/perfil/jonatas-lopes"
+            className="dash-icon-btn profile-btn"
+          >
             &#128100;
-          </button>
+          </Link>
         </nav>
       </div>
 
