@@ -8,7 +8,7 @@ export default function BookCard({
   title,
   author,
   year,
-  buttonText = "TROCAR",
+  buttonText = "Ver Detalhes",
   buttonStyle = "primary",
 }) {
   const linkTo = `/livro/${id}`;
