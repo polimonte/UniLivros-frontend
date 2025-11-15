@@ -1,30 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 import "./PerfilHeader.css";
 
 export default function PerfilHeader({ user, activeTab, setActiveTab }) {
-  const [isFollowing, setIsFollowing] = useState(false);
-
   return (
     <section className="perfil-header-card">
       <div className="perfil-info-main">
         <img src={user.avatar} alt={user.name} className="perfil-avatar" />
         <div className="perfil-info-text">
           <h1 className="perfil-name">{user.name}</h1>
+          <p className="perfil-curso">{user.curso}</p>
           <div className="perfil-stats">
+            <span className="stat-item">
+              &#128214; {user.livrosDisponiveis} Livros
+            </span>
+            <span className="stat-item">
+              &#8644; {user.tradeCount} Trocados
+            </span>
+            <span className="stat-item">
+              &#127942; {user.conquistaCount} Conquistas
+            </span>
             <span className="stat-item">&#9733; {user.rating}</span>
-            <span className="stat-item">{user.tradeCount} Livros Trocados</span>
-            <span className="stat-item">{user.followerCount} Seguidores</span>
           </div>
         </div>
-        <div className="perfil-info-actions">
-          <button
-            className={`perfil-btn-seguir ${isFollowing ? "seguindo" : ""}`}
-            onClick={() => setIsFollowing(!isFollowing)}
-          >
-            {isFollowing ? "Seguindo" : "Seguir"}
-          </button>
-          <button className="perfil-btn-icon">&#128172;</button>
-        </div>
+        <div className="perfil-info-actions"></div>
       </div>
 
       <nav className="perfil-nav-tabs">

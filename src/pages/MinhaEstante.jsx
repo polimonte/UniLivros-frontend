@@ -42,10 +42,6 @@ export default function MinhaEstante() {
           buttonStyle="default"
         />
         <BookPlaceholderCard />
-        <BookPlaceholderCard />
-        <BookPlaceholderCard />
-        <BookPlaceholderCard />
-        <BookPlaceholderCard />
       </div>
     </main>
   );

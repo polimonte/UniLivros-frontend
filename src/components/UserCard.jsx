@@ -1,7 +1,13 @@
 import React from "react";
 import "./UserCard.css";
 
-export default function UserCard({ name, rating, tradeCount, avatarImg }) {
+export default function UserCard({
+  name,
+  rating,
+  tradeCount,
+  avatarImg,
+  isCurrentUser = false,
+}) {
   return (
     <div className="user-card">
       <img src={avatarImg} alt={name} className="user-avatar" />
@@ -13,8 +19,9 @@ export default function UserCard({ name, rating, tradeCount, avatarImg }) {
         </div>
       </div>
       <div className="user-actions">
-        <button className="btn-chat">&#128172;</button>
-        <button className="btn-ver-estante">Ver estante</button>
+        {!isCurrentUser && (
+          <button className="btn-ver-estante">Ver estante</button>
+        )}
       </div>
     </div>
   );

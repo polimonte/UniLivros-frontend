@@ -19,9 +19,11 @@ export default function Perfil() {
   const userData = {
     name: "Jonatas Lopes",
     avatar: avatarImg,
+    curso: "Psicologia",
     rating: 4.8,
     tradeCount: 6,
-    followerCount: 100,
+    conquistaCount: 2,
+    livrosDisponiveis: 4,
   };
 
   return (
@@ -82,18 +84,6 @@ export default function Perfil() {
 
       {activeTab === "conquistas" && (
         <section className="perfil-conquistas">
-          <ConquistaCard
-            iconType="confiavel"
-            title="Super Confiável!!"
-            text="Você Recebeu 15 avaliações 5 estrelas em relação a veracidade no estado dos livros"
-            exp="25"
-          />
-          <ConquistaCard
-            iconType="engajado"
-            title="Engajado!!"
-            text="Você Trocou 5 livros"
-            exp="10"
-          />
           <ConquistaCard
             iconType="confiavel"
             title="Super Confiável!!"

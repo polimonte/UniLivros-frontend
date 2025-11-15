@@ -38,6 +38,7 @@ export default function LivroDetalhes() {
           rating="4.8"
           tradeCount="6"
           avatarImg={userAvatarImg}
+          isCurrentUser={false}
         />
 
         <section className="detalhes-sinopse">
