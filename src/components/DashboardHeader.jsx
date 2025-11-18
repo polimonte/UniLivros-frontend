@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./DashboardHeader.css";
 
-export default function DashboardHeader() {
+export default function DashboardHeader({ onMenuClick }) {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
@@ -20,6 +20,7 @@ export default function DashboardHeader() {
     <header className="dash-header">
       <div className="dash-header-top">
         <div className="dash-header-left">
+          {/* Botão sanduíche removido daqui */}
           <Link to="/dashboard" className="dash-logo-text">
             UniLivros
           </Link>
@@ -39,12 +40,10 @@ export default function DashboardHeader() {
 
         <nav className="dash-header-right">
           <button className="dash-icon-btn add-btn">+</button>
-          <Link
-            to="/perfil/jonatas-lopes"
-            className="dash-icon-btn profile-btn"
-          >
+          {/* Ícone de perfil agora abre o menu */}
+          <button className="dash-icon-btn profile-btn" onClick={onMenuClick}>
             &#128100;
-          </Link>
+          </button>
         </nav>
       </div>
 
