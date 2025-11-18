@@ -1,47 +1,70 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import BookCard from "../components/BookCard";
 import BookPlaceholderCard from "../components/BookPlaceholderCard";
-import "./MinhasTrocas.css"; // Reutilizando o CSS da página Minhas Trocas
-
-import magicoOzImg from "../assets/books/magico-oz.jpg";
-import harryPotterImg from "../assets/books/harry-potter.jpg";
-import memoriasPostumasImg from "../assets/books/memorias-postumas.jpg";
+import "./MinhasTrocas.css"; // Reutilizando CSS
 
 export default function MinhaEstante() {
+  const [books, setBooks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchMyBooks() {
+      try {
+        const response = await fetch(
+          "https://www.googleapis.com/books/v1/volumes?q=subject:design&maxResults=5"
+        );
+        const data = await response.json();
+
+        const processedBooks = (data.items || []).map((item) => ({
+          id: item.id,
+          title: item.volumeInfo.title,
+          author: item.volumeInfo.authors
+            ? item.volumeInfo.authors[0]
+            : "Autor desconhecido",
+          imgSrc: item.volumeInfo.imageLinks?.thumbnail,
+          year: item.volumeInfo.publishedDate
+            ? item.volumeInfo.publishedDate.substring(0, 4)
+            : "N/A",
+        }));
+
+        setBooks(processedBooks);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchMyBooks();
+  }, []);
+
   return (
     <main className="trocas-main">
       <h1 className="trocas-title">Minha Estante</h1>
       <h2 className="trocas-subtitle">Todos os livros na sua estante</h2>
 
       <div className="book-grid">
-        <BookCard
-          id="magico-de-oz"
-          imgSrc={magicoOzImg}
-          title="Mágico de Oz"
-          author="L. Frank Baum"
-          year="1984"
-          buttonText="Ver Detalhes"
-          buttonStyle="default"
-        />
-        <BookCard
-          id="harry-potter"
-          imgSrc={harryPotterImg}
-          title="O Prisioneiro de Azkaban"
-          author="J.K. Rowling"
-          year="2004"
-          buttonText="Ver Detalhes"
-          buttonStyle="default"
-        />
-        <BookCard
-          id="memorias-postumas"
-          imgSrc={memoriasPostumasImg}
-          title="Memórias Póstumas"
-          author="Machado de Assis"
-          year="1881"
-          buttonText="Ver Detalhes"
-          buttonStyle="default"
-        />
-        <BookPlaceholderCard />
+        {isLoading ? (
+          <p>Carregando estante...</p>
+        ) : (
+          <>
+            {books.map((book) => (
+              <BookCard
+                key={book.id}
+                id={book.id}
+                imgSrc={book.imgSrc}
+                title={book.title}
+                author={book.author}
+                year={book.year}
+                buttonText="Ver Detalhes"
+                buttonStyle="default"
+              />
+            ))}
+
+            <BookPlaceholderCard />
+            <BookPlaceholderCard />
+          </>
+        )}
       </div>
     </main>
   );

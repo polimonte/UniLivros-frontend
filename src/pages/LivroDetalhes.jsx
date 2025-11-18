@@ -1,21 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import UserCard from "../components/UserCard";
 import Modal from "../components/Modal";
 import "./LivroDetalhes.css";
 
-import bookCoverImg from "../assets/books/caras-coracoes.jpg";
 import userAvatarImg from "../assets/avatar-jonatas.jpeg";
 
 const mockMeusLivros = [
-  { id: "alasca", title: "Quem é você Alasca?" },
-  { id: "mao-luva", title: "A Mão e a Luva" },
-  { id: "outro", title: "Outro Livro Meu" },
+  { id: "meu-livro-1", title: "O Senhor dos Anéis" },
+  { id: "meu-livro-2", title: "Dom Casmurro" },
+  { id: "meu-livro-3", title: "Código Limpo" },
 ];
 
 export default function LivroDetalhes() {
   const { id } = useParams();
+  const [book, setBook] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [isSolicitado, setSolicitado] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -23,6 +25,27 @@ export default function LivroDetalhes() {
   const [dataHora, setDataHora] = useState("");
   const [local, setLocal] = useState("");
   const [observacao, setObservacao] = useState("");
+
+  useEffect(() => {
+    async function fetchBookDetails() {
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/books/v1/volumes/${id}`
+        );
+        if (!response.ok) throw new Error("Erro ao buscar livro");
+        const data = await response.json();
+
+        setBook(data.volumeInfo);
+      } catch (error) {
+        console.error(error);
+        toast.error("Erro ao carregar detalhes do livro.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBookDetails();
+  }, [id]);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -34,33 +57,54 @@ export default function LivroDetalhes() {
       return;
     }
 
-    console.log("--- Proposta Enviada ---");
-    console.log("Livro Oferecido:", livroOferecido);
-    console.log("Data e Hora:", dataHora);
-    console.log("Local:", local);
-    console.log("Observação:", observacao);
-
     setSolicitado(true);
     closeModal();
     toast.success("Proposta enviada com sucesso!");
   };
+
+  if (loading)
+    return (
+      <div className="loading-container">
+        <p>Carregando detalhes...</p>
+      </div>
+    );
+  if (!book)
+    return (
+      <div className="loading-container">
+        <p>Livro não encontrado.</p>
+      </div>
+    );
+
+  const coverImage =
+    book.imageLinks?.extraLarge ||
+    book.imageLinks?.large ||
+    book.imageLinks?.medium ||
+    book.imageLinks?.thumbnail ||
+    "https://via.placeholder.com/300x450?text=Sem+Capa";
+
+  const cleanDescription = book.description
+    ? book.description.replace(/<[^>]+>/g, "")
+    : "Sem sinopse disponível.";
 
   return (
     <>
       <main className="detalhes-main">
         <div className="detalhes-coluna-esquerda">
           <section className="detalhes-info-livro">
-            <h1 className="detalhes-titulo">CARAS E CORAÇÕES</h1>
-            <h2 className="detalhes-autor">Thomaz Lopes 1910</h2>
+            <h1 className="detalhes-titulo">{book.title}</h1>
+            <h2 className="detalhes-autor">
+              {book.authors ? book.authors.join(", ") : "Autor Desconhecido"}
+              {book.publishedDate
+                ? ` • ${book.publishedDate.substring(0, 4)}`
+                : ""}
+            </h2>
             <div className="detalhes-tags">
               <span>
-                <strong>Categoria:</strong> Drama
+                <strong>Categorias:</strong>{" "}
+                {book.categories ? book.categories[0] : "Geral"}
               </span>
               <span>
-                <strong>Tipo:</strong> Troca
-              </span>
-              <span>
-                <strong>Estado:</strong> Semi-Novo
+                <strong>Páginas:</strong> {book.pageCount || "?"}
               </span>
             </div>
           </section>
@@ -74,45 +118,28 @@ export default function LivroDetalhes() {
           />
 
           <section className="detalhes-sinopse">
-            <p>
-              Se você já amou, se perdeu e se reencontrou, esse livro vai te
-              abraçar nas entrelinhas.
-            </p>
-            <p>
-              Caras e Corações, de Thomaz Lopes, foi uma leitura que me prendeu
-              do início ao fim. O autor tem uma forma leve e profunda de mostrar
-              como sentimentos e escolhas moldam quem somos.
-            </p>
-            <p>
-              O livro está em ótimo estado (semi-novo), sem anotações nem
-              páginas amassadas — apenas com aquelas boas vibrações de quem
-              realmente aproveitou a história.
-            </p>
-            <p>
-              Essa obra me fez refletir sobre amizade, amor e autoconhecimento
-              de um jeito que poucas leituras conseguem. Agora quero que ele
-              siga viagem e toque outro coração como tocou o meu.
-            </p>
+            <p>{cleanDescription}</p>
           </section>
 
           <section className="detalhes-avaliacao">
-            <h3>Avaliação</h3>
+            <h3>Avaliação (Google Books)</h3>
             <div className="estrelas">
-              <span>&#9733;</span>
-              <span>&#9733;</span>
-              <span>&#9733;</span>
-              <span>&#9733;</span>
-              <span>&#9734;</span>
+              {book.averageRating ? (
+                <span>&#9733; {book.averageRating} / 5</span>
+              ) : (
+                <span>Sem avaliações</span>
+              )}
             </div>
           </section>
         </div>
 
         <div className="detalhes-coluna-direita">
           <img
-            src={bookCoverImg}
-            alt="Capa do livro Caras e Corações"
+            src={coverImage}
+            alt={`Capa de ${book.title}`}
             className="detalhes-capa"
           />
+
           <button
             className={`btn-solicitar ${isSolicitado ? "solicitado" : ""}`}
             onClick={openModal}
