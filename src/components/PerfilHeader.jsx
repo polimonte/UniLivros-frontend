@@ -1,32 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Modal from "./Modal";
 import "./PerfilHeader.css";
 
 export default function PerfilHeader({ user, activeTab, setActiveTab }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // Estado para o formulário
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirmNew, setShowConfirmNew] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     curso: "",
-    email: "", // Supondo que exista, ou o usuário possa adicionar
+    email: "",
     senhaAtual: "",
     novaSenha: "",
     confirmarNovaSenha: "",
   });
 
-  // Preenche o formulário com os dados atuais quando o modal abre
   useEffect(() => {
     if (isEditModalOpen) {
       setFormData({
         name: user.name || "",
         curso: user.curso || "",
-        email: "jonatas.lopes@souunit.com.br", // Mock, já que não veio na prop user
+        email: "jonatas.lopes@souunit.com.br",
         senhaAtual: "",
         novaSenha: "",
         confirmarNovaSenha: "",
       });
+      setShowCurrent(false);
+      setShowNew(false);
+      setShowConfirmNew(false);
     }
   }, [isEditModalOpen, user]);
 
@@ -38,7 +44,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
   const handleSave = (e) => {
     e.preventDefault();
 
-    // Validação simples de senha
     if (formData.novaSenha || formData.senhaAtual) {
       if (!formData.senhaAtual) {
         toast.error("Para alterar a senha, informe a senha atual.");
@@ -62,7 +67,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
   return (
     <>
       <section className="perfil-header-card">
-        {/* Botão de Editar no Topo Direito */}
         <button
           className="perfil-edit-btn"
           onClick={() => setIsEditModalOpen(true)}
@@ -120,7 +124,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
         </nav>
       </section>
 
-      {/* Modal de Edição */}
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
         <h2 className="edit-modal-title">Editar Perfil</h2>
         <form className="edit-profile-form" onSubmit={handleSave}>
@@ -156,34 +159,63 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
           <div className="edit-divider"></div>
 
           <h3 className="edit-section-title">Alterar Senha</h3>
+
           <div className="form-group">
             <label>Senha Atual</label>
-            <input
-              type="password"
-              name="senhaAtual"
-              value={formData.senhaAtual}
-              onChange={handleInputChange}
-              placeholder="Preencha apenas se for alterar"
-            />
+            <div className="edit-password-wrapper">
+              <input
+                type={showCurrent ? "text" : "password"}
+                name="senhaAtual"
+                value={formData.senhaAtual}
+                onChange={handleInputChange}
+                placeholder="Preencha apenas se for alterar"
+              />
+              <button
+                type="button"
+                className="edit-password-toggle"
+                onClick={() => setShowCurrent(!showCurrent)}
+              >
+                {showCurrent ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
+
           <div className="form-row">
             <div className="form-group">
               <label>Nova Senha</label>
-              <input
-                type="password"
-                name="novaSenha"
-                value={formData.novaSenha}
-                onChange={handleInputChange}
-              />
+              <div className="edit-password-wrapper">
+                <input
+                  type={showNew ? "text" : "password"}
+                  name="novaSenha"
+                  value={formData.novaSenha}
+                  onChange={handleInputChange}
+                />
+                <button
+                  type="button"
+                  className="edit-password-toggle"
+                  onClick={() => setShowNew(!showNew)}
+                >
+                  {showNew ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
             <div className="form-group">
               <label>Repetir Nova Senha</label>
-              <input
-                type="password"
-                name="confirmarNovaSenha"
-                value={formData.confirmarNovaSenha}
-                onChange={handleInputChange}
-              />
+              <div className="edit-password-wrapper">
+                <input
+                  type={showConfirmNew ? "text" : "password"}
+                  name="confirmarNovaSenha"
+                  value={formData.confirmarNovaSenha}
+                  onChange={handleInputChange}
+                />
+                <button
+                  type="button"
+                  className="edit-password-toggle"
+                  onClick={() => setShowConfirmNew(!showConfirmNew)}
+                >
+                  {showConfirmNew ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
           </div>
 

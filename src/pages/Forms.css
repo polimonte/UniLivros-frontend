@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
-/* Estilos de Fundo e Layout Principal */
 .form-bg {
   background: #F9E7DC;
   min-height: 100vh;
@@ -17,7 +16,6 @@
   width: 100vw;
 }
 
-/* Card Principal do Formulário */
 .form-card {
   background: #F6E3C7;
   border-radius: 32px;
@@ -42,7 +40,6 @@
   align-items: stretch;
 }
 
-/* Linha especial para o e-mail */
 .email-row {
   display: flex;
   align-items: stretch;
@@ -65,10 +62,8 @@
   box-sizing: border-box;
 }
 
-/* Inputs e Botões */
 .form-input {
   flex: 1;
-  /* Permite que o input de email cresça na .email-row */
   background: #fff;
   border: none;
   border-radius: 12px;
@@ -81,12 +76,10 @@
   height: 52px;
   box-sizing: border-box;
   margin-bottom: 18px;
-  /* Espaçamento padrão */
 }
 
 .email-row .form-input {
   margin-bottom: 0;
-  /* Remove margem do input dentro da .email-row */
 }
 
 .form-input:focus {
@@ -114,11 +107,53 @@
 .form-info-text {
   font-size: 1rem;
   color: #4B2E2E;
-  /* Cor de texto padrão */
   text-align: center;
   line-height: 1.5;
   margin-top: -8px;
-  /* Puxa o texto um pouco para cima */
   margin-bottom: 24px;
-  /* Espaço antes do formulário */
+}
+
+/* --- Ajustes de Centralização do Ícone --- */
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  /* A margem que estava no input passa para o wrapper para não quebrar o cálculo de altura */
+  margin-bottom: 18px;
+}
+
+.password-wrapper .form-input {
+  padding-right: 45px;
+  /* Remove a margem do input QUANDO ele está dentro do wrapper */
+  margin-bottom: 0;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0;
+  /* Técnica infalível de centralização vertical */
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 45px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  padding: 0;
+  margin: 0;
+  z-index: 5;
+}
+
+.password-toggle-btn svg {
+  font-size: 1.2rem;
+}
+
+.password-toggle-btn:hover {
+  color: #4B2E2E;
 }

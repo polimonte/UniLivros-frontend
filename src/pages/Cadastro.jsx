@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Header from "../components/Header";
+import { API_BASE_URL } from "../services/api";
 import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
 
@@ -11,9 +13,14 @@ export default function Cadastro() {
   const [matricula, setMatricula] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!name || !email || !matricula || !password || !confirmPassword) {
@@ -25,15 +32,34 @@ export default function Cadastro() {
       return;
     }
 
-    console.log("--- Dados do Cadastro ---");
-    console.log("Nome:", name);
-    console.log("Email:", email);
-    console.log("Matrícula:", matricula);
-    console.log("Senha:", password);
+    setIsLoading(true);
 
-    toast.success("Cadastro realizado! Confirme o código.");
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: name,
+          email: email,
+          matricula: matricula,
+          senha: password,
+        }),
+      });
 
-    navigate("/confirmar-cadastro");
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Cadastro realizado com sucesso!");
+        navigate("/login");
+      } else {
+        toast.error(data.message || "Erro ao realizar cadastro.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      toast.error("Erro de conexão com o servidor.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -71,24 +97,47 @@ export default function Cadastro() {
               onChange={(e) => setMatricula(e.target.value)}
               autoComplete="off"
             />
-            <input
-              type="password"
-              placeholder="Senha"
-              className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-            />
-            <input
-              type="password"
-              placeholder="Confirmação de senha"
-              className="form-input"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              autoComplete="new-password"
-            />
-            <button type="submit" className="form-btn">
-              Cadastrar
+
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Senha"
+                className="form-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex="-1"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+
+            <div className="password-wrapper">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirmação de senha"
+                className="form-input"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                tabIndex="-1"
+              >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+
+            <button type="submit" className="form-btn" disabled={isLoading}>
+              {isLoading ? "Cadastrando..." : "Cadastrar"}
             </button>
           </form>
         </section>

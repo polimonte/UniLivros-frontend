@@ -41,7 +41,7 @@ export default function Home() {
             <div className="como-funciona-card">
               <span className="card-number">01</span>
               <p className="card-text">
-                Cadastre os livros que você já leu e não quer mais deixar
+                Cadastre os livros que você já leu e não quer mais deixar eles
                 parados.
               </p>
             </div>
@@ -55,7 +55,7 @@ export default function Home() {
             <div className="como-funciona-card">
               <span className="card-number">03</span>
               <p className="card-text">
-                Solicite a troca, combine um local seguro dentro do campus e
+                Solicite a troca, combine um local seguro dentro da faculdade e
                 pronto! Boa leitura!
               </p>
             </div>
