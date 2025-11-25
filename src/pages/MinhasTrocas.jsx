@@ -1,47 +1,93 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "../components/Modal";
 import TradeCard from "../components/TradeCard";
+import { API_BASE_URL } from "../services/api";
 import "./MinhasTrocas.css";
 
-import carasCoracoesImg from "../assets/books/caras-coracoes.jpg";
-import quemEAlascaImg from "../assets/books/caras-coracoes.jpg";
-import maoELuvaImg from "../assets/books/caras-coracoes.jpg";
-import harryPotterImg from "../assets/books/caras-coracoes.jpg";
-
-const mockTrades = [
-  {
-    id: 1,
-    livroRecebido: { title: "Caras e Corações", img: carasCoracoesImg },
-    livroDado: { title: "Quem é você Alasca?", img: quemEAlascaImg },
-    comQuem: "Jonatas Lopes",
-    status: "Concluída",
-    dataAtualizacao: "10/11/2025",
-    avaliacao: 5,
-    comentario: "Troca tranquila, livro em ótimo estado!",
-    local: "Pátio da Biblioteca Central",
-    dataHora: "08/11/2025 às 15:30",
-    observacoes: "Levar o livro em uma sacola.",
-  },
-  {
-    id: 2,
-    livroRecebido: { title: "A Mão e a Luva", img: maoELuvaImg },
-    livroDado: { title: "Harry Potter", img: harryPotterImg },
-    comQuem: "Maria Clara",
-    status: "Pendente",
-    dataAtualizacao: "14/11/2025",
-    avaliacao: null,
-    comentario: null,
-    local: "Entrada do Bloco A",
-    dataHora: "16/11/2025 às 10:00",
-    observacoes: "Confirmar um dia antes.",
-  },
-];
-
 export default function MinhasTrocas() {
+  const [trades, setTrades] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedTrade, setSelectedTrade] = useState(null);
 
   const openModal = (trade) => setSelectedTrade(trade);
   const closeModal = () => setSelectedTrade(null);
+
+  useEffect(() => {
+    async function fetchTrades() {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("Usuário não autenticado.");
+          setIsLoading(false);
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/trocas`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) throw new Error("Falha ao carregar trocas.");
+
+        const backendData = await response.json();
+
+        const processedTrades = await Promise.all(
+          backendData.map(async (trade) => {
+            const fetchImage = async (query) => {
+              try {
+                const res = await fetch(
+                  `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+                    query
+                  )}&maxResults=1`
+                );
+                const data = await res.json();
+                return (
+                  data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail || null
+                );
+              } catch {
+                return null;
+              }
+            };
+
+            const imgRecebido = await fetchImage(trade.livroRecebidoTitulo);
+            const imgDado = await fetchImage(trade.livroDadoTitulo);
+
+            return {
+              id: trade.id,
+              livroRecebido: {
+                title: trade.livroRecebidoTitulo,
+                img: imgRecebido,
+              },
+              livroDado: {
+                title: trade.livroDadoTitulo,
+                img: imgDado,
+              },
+              comQuem: trade.nomeOutroUsuario,
+              status: trade.status,
+              dataAtualizacao: trade.dataAtualizacao || "N/A",
+              avaliacao: trade.avaliacao,
+              comentario: trade.comentario,
+              local: trade.local,
+              dataHora: trade.dataHora,
+              observacoes: trade.observacoes,
+            };
+          })
+        );
+
+        setTrades(processedTrades);
+      } catch (err) {
+        setError("Erro ao carregar histórico de trocas.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchTrades();
+  }, []);
 
   return (
     <>
@@ -49,8 +95,15 @@ export default function MinhasTrocas() {
         <h1 className="trocas-title">Minhas Trocas</h1>
         <h2 className="trocas-subtitle">Seu histórico de trocas</h2>
 
+        {isLoading && <p>Carregando histórico...</p>}
+        {error && <p className="error-msg">{error}</p>}
+
+        {!isLoading && !error && trades.length === 0 && (
+          <p>Nenhuma troca realizada ainda.</p>
+        )}
+
         <div className="trocas-list">
-          {mockTrades.map((trade) => (
+          {trades.map((trade) => (
             <TradeCard
               key={trade.id}
               trade={trade}
@@ -108,12 +161,16 @@ export default function MinhasTrocas() {
               <div className="trade-modal-section">
                 <h3 className="trade-modal-subtitle">Avaliação</h3>
                 <p>
-                  <strong>Nota:</strong> {"★".repeat(selectedTrade.avaliacao)}
-                  {"☆".repeat(5 - selectedTrade.avaliacao)}
+                  <strong>Nota:</strong>{" "}
+                  {selectedTrade.avaliacao
+                    ? "★".repeat(selectedTrade.avaliacao)
+                    : "Não avaliado"}
                 </p>
-                <p>
-                  <strong>Comentário:</strong> "{selectedTrade.comentario}"
-                </p>
+                {selectedTrade.comentario && (
+                  <p>
+                    <strong>Comentário:</strong> "{selectedTrade.comentario}"
+                  </p>
+                )}
               </div>
             )}
 

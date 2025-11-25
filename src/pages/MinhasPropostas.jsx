@@ -1,66 +1,140 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import Modal from "../components/Modal";
 import TradeCard from "../components/TradeCard";
+import { API_BASE_URL } from "../services/api";
 import "./MinhasPropostas.css";
-
-import carasCoracoesImg from "../assets/books/caras-coracoes.jpg";
-import quemEAlascaImg from "../assets/books/memorias-postumas.jpg";
-import maoELuvaImg from "../assets/books/memorias-postumas.jpg";
-import harryPotterImg from "../assets/books/harry-potter.jpg";
-import memoriasPostumasImg from "../assets/books/memorias-postumas.jpg";
-
-const mockPropostasRecebidas = [
-  {
-    id: 1,
-    livroDesejado: { title: "Quem é você Alasca?", img: quemEAlascaImg },
-    livroOferecido: { title: "Caras e Corações", img: carasCoracoesImg },
-    usuario: "Jonatas Lopes",
-    status: "Pendente",
-    dataTroca: "18/11/2025",
-    local: "Pátio da Biblioteca",
-  },
-  {
-    id: 2,
-    livroDesejado: { title: "Harry Potter", img: harryPotterImg },
-    livroOferecido: { title: "A Mão e a Luva", img: maoELuvaImg },
-    usuario: "Maria Clara",
-    status: "Pendente",
-    dataTroca: "19/11/2025",
-    local: "Entrada Bloco A",
-  },
-];
-
-const mockPropostasEnviadas = [
-  {
-    id: 3,
-    livroDesejado: { title: "Memórias Póstumas", img: memoriasPostumasImg },
-    livroOferecido: { title: "Harry Potter", img: harryPotterImg },
-    usuario: "Carlos André",
-    status: "Pendente",
-    dataTroca: "20/11/2025",
-    local: "Cantina",
-  },
-];
 
 export default function MinhasPropostas() {
   const [activeTab, setActiveTab] = useState("recebidas");
+  const [propostas, setPropostas] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedProposal, setSelectedProposal] = useState(null);
 
   const openModal = (proposta) => setSelectedProposal(proposta);
   const closeModal = () => setSelectedProposal(null);
 
-  const handleAccept = () => {
-    console.log("Proposta Aceita:", selectedProposal.id);
-    closeModal();
+  useEffect(() => {
+    async function fetchPropostas() {
+      setIsLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const endpoint =
+          activeTab === "recebidas"
+            ? "/propostas/recebidas"
+            : "/propostas/enviadas";
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) throw new Error("Erro ao buscar propostas");
+
+        const backendData = await response.json();
+
+        const processedPropostas = await Promise.all(
+          backendData.map(async (p) => {
+            const fetchImage = async (query) => {
+              try {
+                const res = await fetch(
+                  `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+                    query
+                  )}&maxResults=1`
+                );
+                const data = await res.json();
+                return (
+                  data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail || null
+                );
+              } catch {
+                return null;
+              }
+            };
+
+            const imgOferecido = await fetchImage(p.livroOferecidoTitulo);
+            const imgDesejado = await fetchImage(p.livroDesejadoTitulo);
+
+            return {
+              id: p.id,
+              livroOferecido: {
+                title: p.livroOferecidoTitulo,
+                img: imgOferecido,
+              },
+              livroDesejado: { title: p.livroDesejadoTitulo, img: imgDesejado },
+              usuario: p.nomeUsuarioRelacionado,
+              status: p.status,
+              dataTroca: p.dataTroca,
+              local: p.local,
+            };
+          })
+        );
+
+        setPropostas(processedPropostas);
+      } catch (error) {
+        console.error(error);
+        toast.error("Erro ao carregar propostas.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPropostas();
+  }, [activeTab]);
+
+  const handleAccept = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${API_BASE_URL}/propostas/${selectedProposal.id}/aceitar`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Proposta aceita com sucesso!");
+        setPropostas((prev) =>
+          prev.filter((p) => p.id !== selectedProposal.id)
+        );
+        closeModal();
+      } else {
+        toast.error("Erro ao aceitar proposta.");
+      }
+    } catch (error) {
+      toast.error("Erro de conexão.");
+    }
   };
 
-  const handleDecline = () => {
-    console.log("Proposta Recusada:", selectedProposal.id);
-    closeModal();
-  };
+  const handleDecline = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${API_BASE_URL}/propostas/${selectedProposal.id}/recusar`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-  const propostasParaMostrar =
-    activeTab === "recebidas" ? mockPropostasRecebidas : mockPropostasEnviadas;
+      if (response.ok) {
+        toast.info("Proposta recusada.");
+        setPropostas((prev) =>
+          prev.filter((p) => p.id !== selectedProposal.id)
+        );
+        closeModal();
+      } else {
+        toast.error("Erro ao recusar proposta.");
+      }
+    } catch (error) {
+      toast.error("Erro de conexão.");
+    }
+  };
 
   return (
     <>
@@ -86,19 +160,30 @@ export default function MinhasPropostas() {
           </button>
         </div>
 
-        <div className="propostas-list">
-          {propostasParaMostrar.map((proposta) => (
-            <TradeCard
-              key={proposta.id}
-              trade={{
-                livroRecebido: proposta.livroDesejado,
-                livroDado: proposta.livroOferecido,
-                status: proposta.status,
-              }}
-              onClick={() => openModal(proposta)}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <p>Carregando propostas...</p>
+        ) : (
+          <div className="propostas-list">
+            {propostas.length === 0 && <p>Nenhuma proposta encontrada.</p>}
+            {propostas.map((proposta) => (
+              <TradeCard
+                key={proposta.id}
+                trade={{
+                  livroRecebido:
+                    activeTab === "recebidas"
+                      ? proposta.livroOferecido
+                      : proposta.livroDesejado,
+                  livroDado:
+                    activeTab === "recebidas"
+                      ? proposta.livroDesejado
+                      : proposta.livroOferecido,
+                  status: proposta.status,
+                }}
+                onClick={() => openModal(proposta)}
+              />
+            ))}
+          </div>
+        )}
       </main>
 
       <Modal isOpen={!!selectedProposal} onClose={closeModal}>
@@ -108,19 +193,11 @@ export default function MinhasPropostas() {
 
             <div className="proposta-modal-section">
               <p>
-                <strong>
-                  {activeTab === "recebidas"
-                    ? "Livro Oferecido (por você):"
-                    : "Livro Oferecido (por você):"}
-                </strong>{" "}
+                <strong>Livro Oferecido:</strong>{" "}
                 {selectedProposal.livroOferecido.title}
               </p>
               <p>
-                <strong>
-                  {activeTab === "recebidas"
-                    ? "Livro Desejado (dele/a):"
-                    : "Livro Desejado (por você):"}
-                </strong>{" "}
+                <strong>Livro Desejado:</strong>{" "}
                 {selectedProposal.livroDesejado.title}
               </p>
             </div>
@@ -135,10 +212,10 @@ export default function MinhasPropostas() {
                 {selectedProposal.usuario}
               </p>
               <p>
-                <strong>Data da Troca:</strong> {selectedProposal.dataTroca}
+                <strong>Data Sugerida:</strong> {selectedProposal.dataTroca}
               </p>
               <p>
-                <strong>Local da Troca:</strong> {selectedProposal.local}
+                <strong>Local Sugerido:</strong> {selectedProposal.local}
               </p>
               <p>
                 <strong>Status:</strong> {selectedProposal.status}

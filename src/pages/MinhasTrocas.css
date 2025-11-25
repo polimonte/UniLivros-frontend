@@ -72,3 +72,50 @@
 .trade-modal-close-btn:hover {
   background-color: #e6a91f;
 }
+
+.empty-shelf-container {
+  text-align: center;
+  padding: 50px 20px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  margin-top: 20px;
+}
+
+.empty-shelf-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4B2E2E;
+  margin-bottom: 10px;
+}
+
+.empty-shelf-subtext {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.btn-add-first-book {
+  background-color: #F9B233;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: transform 0.2s;
+}
+
+.btn-add-first-book:hover {
+  transform: scale(1.05);
+  background-color: #e6a91f;
+}
+
+.error-msg {
+  color: #d32f2f;
+  background: #ffcdd2;
+  padding: 10px;
+  border-radius: 8px;
+  display: inline-block;
+}
