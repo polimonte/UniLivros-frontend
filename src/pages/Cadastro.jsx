@@ -11,6 +11,8 @@ export default function Cadastro() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [matricula, setMatricula] = useState("");
+  const [curso, setCurso] = useState("");
+  const [semestre, setSemestre] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -23,7 +25,15 @@ export default function Cadastro() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!name || !email || !matricula || !password || !confirmPassword) {
+    if (
+      !name ||
+      !email ||
+      !matricula ||
+      !curso ||
+      !semestre ||
+      !password ||
+      !confirmPassword
+    ) {
       toast.error("Por favor, preencha todos os campos.");
       return;
     }
@@ -42,6 +52,8 @@ export default function Cadastro() {
           nome: name,
           email: email,
           matricula: matricula,
+          curso: curso,
+          semestre: semestre,
           senha: password,
         }),
       });
@@ -95,6 +107,22 @@ export default function Cadastro() {
               className="form-input"
               value={matricula}
               onChange={(e) => setMatricula(e.target.value)}
+              autoComplete="off"
+            />
+            <input
+              type="text"
+              placeholder="Curso"
+              className="form-input"
+              value={curso}
+              onChange={(e) => setCurso(e.target.value)}
+              autoComplete="off"
+            />
+            <input
+              type="text"
+              placeholder="Semestre"
+              className="form-input"
+              value={semestre}
+              onChange={(e) => setSemestre(e.target.value)}
               autoComplete="off"
             />
 

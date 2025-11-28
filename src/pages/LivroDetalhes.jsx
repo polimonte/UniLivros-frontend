@@ -3,63 +3,154 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import UserCard from "../components/UserCard";
 import Modal from "../components/Modal";
+import { API_BASE_URL } from "../services/api";
 import "./LivroDetalhes.css";
 
-import userAvatarImg from "../assets/avatar-jonatas.jpeg";
-
-const mockMeusLivros = [
-  { id: "meu-livro-1", title: "O Senhor dos Anéis" },
-  { id: "meu-livro-2", title: "Dom Casmurro" },
-  { id: "meu-livro-3", title: "Código Limpo" },
-];
+import avatarDefault from "../assets/avatar-jonatas.jpeg";
 
 export default function LivroDetalhes() {
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("sinopse");
 
-  const [isSolicitado, setSolicitado] = useState(false);
+  const [owners, setOwners] = useState([]);
+  const [isAddedToShelf, setIsAddedToShelf] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [targetUser, setTargetUser] = useState(null);
 
-  const [livroOferecido, setLivroOferecido] = useState(mockMeusLivros[0].id);
+  const [meusLivros, setMeusLivros] = useState([]);
+  const [livroOferecido, setLivroOferecido] = useState("");
   const [dataHora, setDataHora] = useState("");
   const [local, setLocal] = useState("");
   const [observacao, setObservacao] = useState("");
 
   useEffect(() => {
-    async function fetchBookDetails() {
+    async function fetchData() {
       try {
-        const response = await fetch(
+        const googleRes = await fetch(
           `https://www.googleapis.com/books/v1/volumes/${id}`
         );
-        if (!response.ok) throw new Error("Erro ao buscar livro");
-        const data = await response.json();
+        if (!googleRes.ok) throw new Error("Erro ao buscar livro no Google");
+        const googleData = await googleRes.json();
+        setBook(googleData.volumeInfo);
 
-        setBook(data.volumeInfo);
+        const token = localStorage.getItem("token");
+        if (token) {
+          const ownersRes = await fetch(
+            `${API_BASE_URL}/livros/${id}/usuarios`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          if (ownersRes.ok) {
+            const ownersData = await ownersRes.json();
+            setOwners(ownersData);
+          }
+
+          const myBooksRes = await fetch(`${API_BASE_URL}/livros/meus-livros`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (myBooksRes.ok) {
+            const myBooksData = await myBooksRes.json();
+            setMeusLivros(myBooksData);
+            if (myBooksData.length > 0) setLivroOferecido(myBooksData[0].id);
+          }
+        }
       } catch (error) {
         console.error(error);
-        toast.error("Erro ao carregar detalhes do livro.");
+        toast.error("Erro ao carregar detalhes.");
       } finally {
         setLoading(false);
       }
     }
 
-    fetchBookDetails();
+    fetchData();
   }, [id]);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const handleAddToShelf = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Você precisa estar logado.");
+        return;
+      }
 
-  const handleSubmitProposta = (event) => {
+      const bookPayload = {
+        googleId: id,
+        titulo: book.title,
+        autor: book.authors ? book.authors[0] : "Desconhecido",
+        ano: book.publishedDate ? book.publishedDate.substring(0, 4) : "",
+        imagemUrl: book.imageLinks?.thumbnail || "",
+      };
+
+      const response = await fetch(`${API_BASE_URL}/livros`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookPayload),
+      });
+
+      if (response.ok) {
+        setIsAddedToShelf(true);
+        toast.success("Livro adicionado à sua estante!");
+      } else {
+        toast.error("Erro ao adicionar livro.");
+      }
+    } catch (error) {
+      toast.error("Erro de conexão.");
+    }
+  };
+
+  const handleTradeClick = (user) => {
+    setTargetUser(user);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setTargetUser(null);
+  };
+
+  const handleSubmitProposta = async (event) => {
     event.preventDefault();
     if (!livroOferecido || !dataHora || !local) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
 
-    setSolicitado(true);
-    closeModal();
-    toast.success("Proposta enviada com sucesso!");
+    try {
+      const token = localStorage.getItem("token");
+      const propostaPayload = {
+        usuarioDestinoId: targetUser.id,
+        livroDesejadoGoogleId: id,
+        livroOferecidoId: livroOferecido,
+        dataHora: dataHora,
+        local: local,
+        observacoes: observacao,
+      };
+
+      const response = await fetch(`${API_BASE_URL}/propostas`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(propostaPayload),
+      });
+
+      if (response.ok) {
+        toast.success(`Proposta enviada para ${targetUser.nome}!`);
+        closeModal();
+      } else {
+        toast.error("Erro ao enviar proposta.");
+      }
+    } catch (error) {
+      toast.error("Erro de conexão.");
+    }
   };
 
   if (loading)
@@ -109,28 +200,65 @@ export default function LivroDetalhes() {
             </div>
           </section>
 
-          <UserCard
-            name="Jonatas Lopes"
-            rating="4.8"
-            tradeCount="6"
-            avatarImg={userAvatarImg}
-            isCurrentUser={false}
-          />
+          <nav className="livro-nav-tabs">
+            <button
+              className={`livro-tab-btn ${
+                activeTab === "sinopse" ? "active" : ""
+              }`}
+              onClick={() => setActiveTab("sinopse")}
+            >
+              Sinopse
+            </button>
+            <button
+              className={`livro-tab-btn ${
+                activeTab === "quemTem" ? "active" : ""
+              }`}
+              onClick={() => setActiveTab("quemTem")}
+            >
+              Quem Tem?
+            </button>
+          </nav>
 
-          <section className="detalhes-sinopse">
-            <p>{cleanDescription}</p>
-          </section>
+          <div className="livro-tab-content">
+            {activeTab === "sinopse" && (
+              <>
+                <section className="detalhes-sinopse">
+                  <p>{cleanDescription}</p>
+                </section>
+                <section className="detalhes-avaliacao">
+                  <h3>Avaliação Geral</h3>
+                  <div className="estrelas">
+                    {book.averageRating ? (
+                      <span>&#9733; {book.averageRating} / 5</span>
+                    ) : (
+                      <span>Sem avaliações</span>
+                    )}
+                  </div>
+                </section>
+              </>
+            )}
 
-          <section className="detalhes-avaliacao">
-            <h3>Avaliação (Google Books)</h3>
-            <div className="estrelas">
-              {book.averageRating ? (
-                <span>&#9733; {book.averageRating} / 5</span>
-              ) : (
-                <span>Sem avaliações</span>
-              )}
-            </div>
-          </section>
+            {activeTab === "quemTem" && (
+              <section className="owners-list">
+                {owners.length === 0 ? (
+                  <p>Ninguém possui este livro na estante ainda.</p>
+                ) : (
+                  owners.map((owner) => (
+                    <UserCard
+                      key={owner.id}
+                      id={owner.id}
+                      name={owner.nome}
+                      rating={owner.notaMedia}
+                      tradeCount={owner.totalTrocas}
+                      avatarImg={owner.avatarUrl || avatarDefault}
+                      isCurrentUser={false}
+                      onTradeClick={() => handleTradeClick(owner)}
+                    />
+                  ))
+                )}
+              </section>
+            )}
+          </div>
         </div>
 
         <div className="detalhes-coluna-direita">
@@ -141,17 +269,19 @@ export default function LivroDetalhes() {
           />
 
           <button
-            className={`btn-solicitar ${isSolicitado ? "solicitado" : ""}`}
-            onClick={openModal}
-            disabled={isSolicitado}
+            className={`btn-add-estante ${isAddedToShelf ? "added" : ""}`}
+            onClick={handleAddToShelf}
+            disabled={isAddedToShelf}
           >
-            {isSolicitado ? "Proposta Enviada" : "Solicitar Troca"}
+            {isAddedToShelf
+              ? "Adicionado à Estante"
+              : "Adicionar à minha estante"}
           </button>
         </div>
       </main>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <h2 className="proposta-form-title">Enviar Proposta de Troca</h2>
+        <h2 className="proposta-form-title">Troca com {targetUser?.nome}</h2>
         <form className="proposta-form" onSubmit={handleSubmitProposta}>
           <div className="form-group">
             <label htmlFor="livro-oferecido">Livro para oferecer:</label>
@@ -160,9 +290,12 @@ export default function LivroDetalhes() {
               value={livroOferecido}
               onChange={(e) => setLivroOferecido(e.target.value)}
             >
-              {mockMeusLivros.map((livro) => (
+              <option value="" disabled>
+                Selecione um livro
+              </option>
+              {meusLivros.map((livro) => (
                 <option key={livro.id} value={livro.id}>
-                  {livro.title}
+                  {livro.titulo}
                 </option>
               ))}
             </select>
@@ -205,7 +338,7 @@ export default function LivroDetalhes() {
               className="btn-fechar-modal"
               onClick={closeModal}
             >
-              Fechar
+              Cancelar
             </button>
             <button type="submit" className="btn-enviar-proposta">
               Enviar Proposta
