@@ -23,3 +23,23 @@
   padding: 20px 40px;
   box-sizing: border-box;
 }
+
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.page-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #fcfcfc;
+  /* Ou a cor de fundo desejada */
+}

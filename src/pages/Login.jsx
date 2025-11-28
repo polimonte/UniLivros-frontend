@@ -51,9 +51,11 @@ export default function Login() {
         toast.success("Login realizado com sucesso!");
         navigate("/dashboard");
       } else {
-        toast.error(
-          data.message || "Falha no login. Verifique suas credenciais."
-        );
+        const errorMessage =
+          data.message ||
+          data.error ||
+          "Falha no login. Verifique suas credenciais.";
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Erro no login:", error);

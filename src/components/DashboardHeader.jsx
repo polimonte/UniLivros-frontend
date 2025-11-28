@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./DashboardHeader.css";
 
-export default function DashboardHeader({ onMenuClick }) {
+export default function DashboardHeader({ onMenuClick, onAddBookClick }) {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
@@ -20,7 +20,6 @@ export default function DashboardHeader({ onMenuClick }) {
     <header className="dash-header">
       <div className="dash-header-top">
         <div className="dash-header-left">
-          {/* Botão sanduíche removido daqui */}
           <Link to="/dashboard" className="dash-logo-text">
             UniLivros
           </Link>
@@ -39,8 +38,14 @@ export default function DashboardHeader({ onMenuClick }) {
         </form>
 
         <nav className="dash-header-right">
-          <button className="dash-icon-btn add-btn">+</button>
-          {/* Ícone de perfil agora abre o menu */}
+          <button
+            className="dash-icon-btn add-btn"
+            onClick={onAddBookClick}
+            title="Adicionar Livro"
+          >
+            +
+          </button>
+
           <button className="dash-icon-btn profile-btn" onClick={onMenuClick}>
             &#128100;
           </button>

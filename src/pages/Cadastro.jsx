@@ -64,7 +64,9 @@ export default function Cadastro() {
         toast.success("Cadastro realizado com sucesso!");
         navigate("/login");
       } else {
-        toast.error(data.message || "Erro ao realizar cadastro.");
+        const errorMessage =
+          data.message || data.error || "Erro ao realizar cadastro.";
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Erro na requisição:", error);

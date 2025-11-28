@@ -2,12 +2,20 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 
-export default function Sidebar({ isOpen, onClose }) {
+export default function Sidebar({ isOpen, onClose, onAddBookClick }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     onClose();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/");
+  };
+
+  const handleAddClick = (e) => {
+    e.preventDefault();
+    onAddBookClick();
+    onClose();
   };
 
   return (
@@ -31,9 +39,15 @@ export default function Sidebar({ isOpen, onClose }) {
             <span className="sidebar-link-icon">&#128276;</span>
             <span className="sidebar-link-text">Notificações</span>
           </Link>
-          <Link to="#" className="sidebar-link" onClick={onClose}>
+
+          <Link to="#" className="sidebar-link" onClick={handleAddClick}>
             <span className="sidebar-link-icon add-icon">+</span>
             <span className="sidebar-link-text">Adicionar Livro</span>
+          </Link>
+
+          <Link to="/minhas-trocas" className="sidebar-link" onClick={onClose}>
+            <span className="sidebar-link-icon">&#128213;</span>
+            <span className="sidebar-link-text">Minhas trocas</span>
           </Link>
           <Link
             to="/perfil/jonatas-lopes"

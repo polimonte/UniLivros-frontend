@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import UserCard from "../components/UserCard";
 import Modal from "../components/Modal";
+import AddBookModal from "../components/AddBookModal"; // Importar
 import { API_BASE_URL } from "../services/api";
 import "./LivroDetalhes.css";
 
@@ -13,13 +14,14 @@ export default function LivroDetalhes() {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("sinopse");
-
   const [owners, setOwners] = useState([]);
+
+  // Controle do Modal de Adicionar Livro
+  const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
   const [isAddedToShelf, setIsAddedToShelf] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetUser, setTargetUser] = useState(null);
-
   const [meusLivros, setMeusLivros] = useState([]);
   const [livroOferecido, setLivroOferecido] = useState("");
   const [dataHora, setDataHora] = useState("");
@@ -56,6 +58,10 @@ export default function LivroDetalhes() {
             const myBooksData = await myBooksRes.json();
             setMeusLivros(myBooksData);
             if (myBooksData.length > 0) setLivroOferecido(myBooksData[0].id);
+
+            // Verifica se eu já tenho esse livro
+            const alreadyHave = myBooksData.some((b) => b.googleId === id);
+            if (alreadyHave) setIsAddedToShelf(true);
           }
         }
       } catch (error) {
@@ -69,40 +75,13 @@ export default function LivroDetalhes() {
     fetchData();
   }, [id]);
 
-  const handleAddToShelf = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("Você precisa estar logado.");
-        return;
-      }
-
-      const bookPayload = {
-        googleId: id,
-        titulo: book.title,
-        autor: book.authors ? book.authors[0] : "Desconhecido",
-        ano: book.publishedDate ? book.publishedDate.substring(0, 4) : "",
-        imagemUrl: book.imageLinks?.thumbnail || "",
-      };
-
-      const response = await fetch(`${API_BASE_URL}/livros`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookPayload),
-      });
-
-      if (response.ok) {
-        setIsAddedToShelf(true);
-        toast.success("Livro adicionado à sua estante!");
-      } else {
-        toast.error("Erro ao adicionar livro.");
-      }
-    } catch (error) {
-      toast.error("Erro de conexão.");
+  const handleOpenAddModal = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Você precisa estar logado.");
+      return;
     }
+    setIsAddBookModalOpen(true);
   };
 
   const handleTradeClick = (user) => {
@@ -176,6 +155,16 @@ export default function LivroDetalhes() {
   const cleanDescription = book.description
     ? book.description.replace(/<[^>]+>/g, "")
     : "Sem sinopse disponível.";
+
+  // Objeto pronto para o Modal (formato que o AddBookModal espera)
+  const currentBookData = {
+    googleId: id,
+    titulo: book.title,
+    autor: book.authors ? book.authors[0] : "Desconhecido",
+    ano: book.publishedDate ? book.publishedDate.substring(0, 4) : "",
+    imagemUrl: book.imageLinks?.thumbnail || "",
+    descricao: book.description || "",
+  };
 
   return (
     <>
@@ -270,7 +259,7 @@ export default function LivroDetalhes() {
 
           <button
             className={`btn-add-estante ${isAddedToShelf ? "added" : ""}`}
-            onClick={handleAddToShelf}
+            onClick={handleOpenAddModal}
             disabled={isAddedToShelf}
           >
             {isAddedToShelf
@@ -280,6 +269,7 @@ export default function LivroDetalhes() {
         </div>
       </main>
 
+      {/* MODAL DE SOLICITAÇÃO */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <h2 className="proposta-form-title">Troca com {targetUser?.nome}</h2>
         <form className="proposta-form" onSubmit={handleSubmitProposta}>
@@ -346,6 +336,14 @@ export default function LivroDetalhes() {
           </div>
         </form>
       </Modal>
+
+      {/* MODAL DE ADICIONAR LIVRO */}
+      <AddBookModal
+        isOpen={isAddBookModalOpen}
+        onClose={() => setIsAddBookModalOpen(false)}
+        initialBook={currentBookData}
+        onSuccess={() => setIsAddedToShelf(true)}
+      />
     </>
   );
 }
