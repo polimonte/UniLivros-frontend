@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import UserCard from "../components/UserCard";
 import Modal from "../components/Modal";
-import AddBookModal from "../components/AddBookModal"; // Importar
+import AddBookModal from "../components/AddBookModal";
 import { API_BASE_URL } from "../services/api";
 import "./LivroDetalhes.css";
 
@@ -14,14 +14,15 @@ export default function LivroDetalhes() {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("sinopse");
-  const [owners, setOwners] = useState([]);
 
-  // Controle do Modal de Adicionar Livro
-  const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
+  const [owners, setOwners] = useState([]);
   const [isAddedToShelf, setIsAddedToShelf] = useState(false);
+
+  const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetUser, setTargetUser] = useState(null);
+
   const [meusLivros, setMeusLivros] = useState([]);
   const [livroOferecido, setLivroOferecido] = useState("");
   const [dataHora, setDataHora] = useState("");
@@ -31,24 +32,71 @@ export default function LivroDetalhes() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const googleRes = await fetch(
-          `https://www.googleapis.com/books/v1/volumes/${id}`
-        );
-        if (!googleRes.ok) throw new Error("Erro ao buscar livro no Google");
-        const googleData = await googleRes.json();
-        setBook(googleData.volumeInfo);
+        setLoading(true);
+        let googleBookData = null;
+        let backendBookId = null;
+
+        const isBackendId = /^\d+$/.test(id);
+
+        if (isBackendId) {
+          backendBookId = id;
+          const token = localStorage.getItem("token");
+
+          const backendRes = await fetch(`${API_BASE_URL}/livros/${id}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+
+          if (!backendRes.ok)
+            throw new Error("Livro não encontrado no sistema.");
+          const backendData = await backendRes.json();
+
+          try {
+            const searchRes = await fetch(
+              `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+                backendData.titulo
+              )}&maxResults=1`
+            );
+            const searchData = await searchRes.json();
+
+            if (searchData.items && searchData.items.length > 0) {
+              googleBookData = searchData.items[0].volumeInfo;
+            } else {
+              googleBookData = {
+                title: backendData.titulo,
+                authors: [backendData.autor],
+                description: backendData.descricao,
+                publishedDate: backendData.ano.toString(),
+                imageLinks: { thumbnail: "" }, // Sem capa
+              };
+            }
+          } catch (err) {
+            console.error("Erro ao enriquecer dados com Google", err);
+          }
+        } else {
+          const googleRes = await fetch(
+            `https://www.googleapis.com/books/v1/volumes/${id}`
+          );
+          if (!googleRes.ok) throw new Error("Erro ao buscar livro no Google");
+          const googleData = await googleRes.json();
+          googleBookData = googleData.volumeInfo;
+        }
+
+        setBook(googleBookData);
 
         const token = localStorage.getItem("token");
         if (token) {
-          const ownersRes = await fetch(
-            `${API_BASE_URL}/livros/${id}/usuarios`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
+          if (backendBookId) {
+            const ownersRes = await fetch(
+              `${API_BASE_URL}/livros/${backendBookId}/usuarios`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+            if (ownersRes.ok) {
+              setOwners(await ownersRes.json());
             }
-          );
-          if (ownersRes.ok) {
-            const ownersData = await ownersRes.json();
-            setOwners(ownersData);
+          } else {
+            setOwners([]);
           }
 
           const myBooksRes = await fetch(`${API_BASE_URL}/livros/meus-livros`, {
@@ -59,9 +107,12 @@ export default function LivroDetalhes() {
             setMeusLivros(myBooksData);
             if (myBooksData.length > 0) setLivroOferecido(myBooksData[0].id);
 
-            // Verifica se eu já tenho esse livro
-            const alreadyHave = myBooksData.some((b) => b.googleId === id);
-            if (alreadyHave) setIsAddedToShelf(true);
+            if (googleBookData) {
+              const alreadyHave = myBooksData.some(
+                (b) => b.titulo === googleBookData.title
+              );
+              if (alreadyHave) setIsAddedToShelf(true);
+            }
           }
         }
       } catch (error) {
@@ -103,9 +154,11 @@ export default function LivroDetalhes() {
 
     try {
       const token = localStorage.getItem("token");
+
       const propostaPayload = {
         usuarioDestinoId: targetUser.id,
-        livroDesejadoGoogleId: id,
+        livroDesejadoId: /^\d+$/.test(id) ? id : null,
+        livroDesejadoGoogleId: /^\d+$/.test(id) ? null : id,
         livroOferecidoId: livroOferecido,
         dataHora: dataHora,
         local: local,
@@ -156,9 +209,9 @@ export default function LivroDetalhes() {
     ? book.description.replace(/<[^>]+>/g, "")
     : "Sem sinopse disponível.";
 
-  // Objeto pronto para o Modal (formato que o AddBookModal espera)
+  // Objeto pronto para o Modal
   const currentBookData = {
-    googleId: id,
+    googleId: /^\d+$/.test(id) ? null : id,
     titulo: book.title,
     autor: book.authors ? book.authors[0] : "Desconhecido",
     ano: book.publishedDate ? book.publishedDate.substring(0, 4) : "",
@@ -230,7 +283,11 @@ export default function LivroDetalhes() {
             {activeTab === "quemTem" && (
               <section className="owners-list">
                 {owners.length === 0 ? (
-                  <p>Ninguém possui este livro na estante ainda.</p>
+                  <p>
+                    {/^\d+$/.test(id)
+                      ? "Ninguém mais possui este livro na estante."
+                      : "Este livro não foi encontrado na estante de ninguém (vindo do Google)."}
+                  </p>
                 ) : (
                   owners.map((owner) => (
                     <UserCard
@@ -337,7 +394,6 @@ export default function LivroDetalhes() {
         </form>
       </Modal>
 
-      {/* MODAL DE ADICIONAR LIVRO */}
       <AddBookModal
         isOpen={isAddBookModalOpen}
         onClose={() => setIsAddBookModalOpen(false)}
