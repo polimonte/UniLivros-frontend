@@ -1,17 +1,29 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import Header from "../components/Header";
+import { API_BASE_URL } from "../services/api";
 import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
 
 export default function NovaSenha() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { email, code } = location.state || {};
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!email || !code) {
+      toast.error("Dados da sessão perdidos. Reinicie o processo.");
+      navigate("/login");
+      return;
+    }
 
     if (!password || !confirmPassword) {
       toast.error("Por favor, preencha todos os campos.");
@@ -22,12 +34,31 @@ export default function NovaSenha() {
       return;
     }
 
-    console.log("--- Nova Senha ---");
-    console.log("Senha definida:", password);
+    setIsLoading(true);
 
-    navigate("/login", {
-      state: { message: "Senha redefinida com sucesso! Faça seu login." },
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          code: code,
+          newPassword: password,
+        }),
+      });
+
+      if (response.ok) {
+        navigate("/login", {
+          state: { message: "Senha redefinida com sucesso! Faça seu login." },
+        });
+      } else {
+        toast.error("Erro ao redefinir senha.");
+      }
+    } catch (error) {
+      toast.error("Erro de conexão.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,8 +87,8 @@ export default function NovaSenha() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
             />
-            <button type="submit" className="form-btn">
-              Confirmar
+            <button type="submit" className="form-btn" disabled={isLoading}>
+              {isLoading ? "Salvando..." : "Confirmar"}
             </button>
           </form>
         </section>
