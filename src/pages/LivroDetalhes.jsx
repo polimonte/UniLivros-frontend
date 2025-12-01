@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import UserCard from "../components/UserCard";
 import Modal from "../components/Modal";
@@ -11,15 +11,20 @@ import avatarDefault from "../assets/avatar-jonatas.jpeg";
 
 export default function LivroDetalhes() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("sinopse");
 
   const [owners, setOwners] = useState([]);
+  
   const [isAddedToShelf, setIsAddedToShelf] = useState(false);
+  const [internalId, setInternalId] = useState(null);
 
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
-
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false); 
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetUser, setTargetUser] = useState(null);
 
@@ -29,110 +34,144 @@ export default function LivroDetalhes() {
   const [local, setLocal] = useState("");
   const [observacao, setObservacao] = useState("");
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        let googleBookData = null;
-        let backendBookId = null;
+  const fetchData = useCallback(async () => {
+    try {
+      let googleBookData = null;
+      let backendBookId = null;
 
-        const isBackendId = /^\d+$/.test(id);
+      const isBackendId = /^\d+$/.test(id);
 
-        if (isBackendId) {
-          backendBookId = id;
-          const token = localStorage.getItem("token");
-
-          const backendRes = await fetch(`${API_BASE_URL}/livros/${id}`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          });
-
-          if (!backendRes.ok)
-            throw new Error("Livro não encontrado no sistema.");
-          const backendData = await backendRes.json();
-
-          try {
-            const searchRes = await fetch(
-              `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-                backendData.titulo
-              )}&maxResults=1`
-            );
-            const searchData = await searchRes.json();
-
-            if (searchData.items && searchData.items.length > 0) {
-              googleBookData = searchData.items[0].volumeInfo;
-            } else {
-              googleBookData = {
-                title: backendData.titulo,
-                authors: [backendData.autor],
-                description: backendData.descricao,
-                publishedDate: backendData.ano.toString(),
-                imageLinks: { thumbnail: "" }, // Sem capa
-              };
-            }
-          } catch (err) {
-            console.error("Erro ao enriquecer dados com Google", err);
-          }
-        } else {
-          const googleRes = await fetch(
-            `https://www.googleapis.com/books/v1/volumes/${id}`
-          );
-          if (!googleRes.ok) throw new Error("Erro ao buscar livro no Google");
-          const googleData = await googleRes.json();
-          googleBookData = googleData.volumeInfo;
-        }
-
-        setBook(googleBookData);
-
+      if (isBackendId) {
+        backendBookId = id;
         const token = localStorage.getItem("token");
-        if (token) {
-          if (backendBookId) {
-            const ownersRes = await fetch(
-              `${API_BASE_URL}/livros/${backendBookId}/usuarios`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-            if (ownersRes.ok) {
-              setOwners(await ownersRes.json());
-            }
+        
+        const backendRes = await fetch(`${API_BASE_URL}/livros/${id}`, {
+           headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        });
+        
+        if (!backendRes.ok) throw new Error("Livro não encontrado no sistema.");
+        const backendData = await backendRes.json();
+
+        try {
+          const searchRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(backendData.titulo)}&maxResults=1`);
+          const searchData = await searchRes.json();
+          
+          if (searchData.items && searchData.items.length > 0) {
+            googleBookData = searchData.items[0].volumeInfo;
           } else {
-            setOwners([]);
+            googleBookData = {
+              title: backendData.titulo,
+              authors: [backendData.autor],
+              description: backendData.descricao,
+              publishedDate: backendData.ano.toString(),
+              imageLinks: { thumbnail: "" }
+            };
+          }
+        } catch (err) {
+          console.error("Erro Google", err);
+        }
+
+      } else {
+        const googleRes = await fetch(`https://www.googleapis.com/books/v1/volumes/${id}`);
+        if (!googleRes.ok) throw new Error("Erro ao buscar livro no Google");
+        const googleData = await googleRes.json();
+        googleBookData = googleData.volumeInfo;
+      }
+
+      setBook(googleBookData);
+
+      const token = localStorage.getItem("token");
+      if (token) {
+        if (backendBookId) {
+          const ownersRes = await fetch(`${API_BASE_URL}/livros/${backendBookId}/usuarios`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          if (ownersRes.ok) setOwners(await ownersRes.json());
+        } else {
+           setOwners([]); 
+        }
+
+        const myBooksRes = await fetch(`${API_BASE_URL}/livros/meus-livros`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        
+        if (myBooksRes.ok) {
+          const myBooksData = await myBooksRes.json();
+          setMeusLivros(myBooksData);
+          if (myBooksData.length > 0) setLivroOferecido(myBooksData[0].id);
+          
+          let match = null;
+
+          if (isBackendId) {
+            match = myBooksData.find(b => b.id.toString() === id.toString());
+          } else if (googleBookData) {
+            match = myBooksData.find(b => b.titulo.toLowerCase() === googleBookData.title.toLowerCase());
           }
 
-          const myBooksRes = await fetch(`${API_BASE_URL}/livros/meus-livros`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (myBooksRes.ok) {
-            const myBooksData = await myBooksRes.json();
-            setMeusLivros(myBooksData);
-            if (myBooksData.length > 0) setLivroOferecido(myBooksData[0].id);
-
-            if (googleBookData) {
-              const alreadyHave = myBooksData.some(
-                (b) => b.titulo === googleBookData.title
-              );
-              if (alreadyHave) setIsAddedToShelf(true);
-            }
+          if (match) {
+            setIsAddedToShelf(true);
+            setInternalId(match.id);
+          } else {
+            setIsAddedToShelf(false);
+            setInternalId(null);
           }
         }
-      } catch (error) {
-        console.error(error);
-        toast.error("Erro ao carregar detalhes.");
-      } finally {
-        setLoading(false);
       }
-    }
 
-    fetchData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao carregar detalhes.");
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  const handleOpenAddModal = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Você precisa estar logado.");
-      return;
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleRemoveFromShelf = async () => {
+    if (!internalId) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/livros/${internalId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (response.ok || response.status === 204) {
+        toast.info("Livro removido da estante.");
+        setIsRemoveModalOpen(false); 
+        
+        if (/^\d+$/.test(id)) {
+            navigate("/minha-estante");
+        } else {
+            fetchData();
+        }
+      } else {
+        toast.error("Erro ao remover livro.");
+      }
+    } catch (error) {
+      toast.error("Erro de conexão.");
     }
-    setIsAddBookModalOpen(true);
+  };
+
+  const handleShelfAction = () => {
+    if (isAddedToShelf) {
+      setIsRemoveModalOpen(true); 
+    } else {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Você precisa estar logado.");
+        return;
+      }
+      setIsAddBookModalOpen(true);
+    }
+  };
+
+  const handleSuccessAdd = () => {
+    fetchData();
   };
 
   const handleTradeClick = (user) => {
@@ -154,7 +193,7 @@ export default function LivroDetalhes() {
 
     try {
       const token = localStorage.getItem("token");
-
+      
       const propostaPayload = {
         usuarioDestinoId: targetUser.id,
         livroDesejadoId: /^\d+$/.test(id) ? id : null,
@@ -162,16 +201,16 @@ export default function LivroDetalhes() {
         livroOferecidoId: livroOferecido,
         dataHora: dataHora,
         local: local,
-        observacoes: observacao,
+        observacoes: observacao
       };
 
       const response = await fetch(`${API_BASE_URL}/propostas`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(propostaPayload),
+        body: JSON.stringify(propostaPayload)
       });
 
       if (response.ok) {
@@ -185,38 +224,24 @@ export default function LivroDetalhes() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="loading-container">
-        <p>Carregando detalhes...</p>
-      </div>
-    );
-  if (!book)
-    return (
-      <div className="loading-container">
-        <p>Livro não encontrado.</p>
-      </div>
-    );
+  if (loading) return <div className="loading-container"><p>Carregando detalhes...</p></div>;
+  if (!book) return <div className="loading-container"><p>Livro não encontrado.</p></div>;
 
-  const coverImage =
-    book.imageLinks?.extraLarge ||
-    book.imageLinks?.large ||
-    book.imageLinks?.medium ||
-    book.imageLinks?.thumbnail ||
-    "https://via.placeholder.com/300x450?text=Sem+Capa";
+  const coverImage = book.imageLinks?.extraLarge || 
+                     book.imageLinks?.large || 
+                     book.imageLinks?.medium || 
+                     book.imageLinks?.thumbnail || 
+                     "https://via.placeholder.com/300x450?text=Sem+Capa";
 
-  const cleanDescription = book.description
-    ? book.description.replace(/<[^>]+>/g, "")
-    : "Sem sinopse disponível.";
+  const cleanDescription = book.description ? book.description.replace(/<[^>]+>/g, '') : "Sem sinopse disponível.";
 
-  // Objeto pronto para o Modal
   const currentBookData = {
     googleId: /^\d+$/.test(id) ? null : id,
     titulo: book.title,
     autor: book.authors ? book.authors[0] : "Desconhecido",
     ano: book.publishedDate ? book.publishedDate.substring(0, 4) : "",
     imagemUrl: book.imageLinks?.thumbnail || "",
-    descricao: book.description || "",
+    descricao: book.description || ""
   };
 
   return (
@@ -226,36 +251,25 @@ export default function LivroDetalhes() {
           <section className="detalhes-info-livro">
             <h1 className="detalhes-titulo">{book.title}</h1>
             <h2 className="detalhes-autor">
-              {book.authors ? book.authors.join(", ") : "Autor Desconhecido"}
-              {book.publishedDate
-                ? ` • ${book.publishedDate.substring(0, 4)}`
-                : ""}
+              {book.authors ? book.authors.join(", ") : "Autor Desconhecido"} 
+              {book.publishedDate ? ` • ${book.publishedDate.substring(0,4)}` : ""}
             </h2>
             <div className="detalhes-tags">
-              <span>
-                <strong>Categorias:</strong>{" "}
-                {book.categories ? book.categories[0] : "Geral"}
-              </span>
-              <span>
-                <strong>Páginas:</strong> {book.pageCount || "?"}
-              </span>
+              <span><strong>Categorias:</strong> {book.categories ? book.categories[0] : "Geral"}</span>
+              <span><strong>Páginas:</strong> {book.pageCount || "?"}</span>
             </div>
           </section>
 
           <nav className="livro-nav-tabs">
-            <button
-              className={`livro-tab-btn ${
-                activeTab === "sinopse" ? "active" : ""
-              }`}
-              onClick={() => setActiveTab("sinopse")}
+            <button 
+              className={`livro-tab-btn ${activeTab === 'sinopse' ? 'active' : ''}`}
+              onClick={() => setActiveTab('sinopse')}
             >
               Sinopse
             </button>
-            <button
-              className={`livro-tab-btn ${
-                activeTab === "quemTem" ? "active" : ""
-              }`}
-              onClick={() => setActiveTab("quemTem")}
+            <button 
+              className={`livro-tab-btn ${activeTab === 'quemTem' ? 'active' : ''}`}
+              onClick={() => setActiveTab('quemTem')}
             >
               Quem Tem?
             </button>
@@ -284,13 +298,14 @@ export default function LivroDetalhes() {
               <section className="owners-list">
                 {owners.length === 0 ? (
                   <p>
-                    {/^\d+$/.test(id)
+                    { /^\d+$/.test(id) 
                       ? "Ninguém mais possui este livro na estante."
-                      : "Este livro não foi encontrado na estante de ninguém (vindo do Google)."}
+                      : "Este livro não foi encontrado na estante de ninguém (vindo do Google)." 
+                    }
                   </p>
                 ) : (
-                  owners.map((owner) => (
-                    <UserCard
+                  owners.map(owner => (
+                    <UserCard 
                       key={owner.id}
                       id={owner.id}
                       name={owner.nome}
@@ -308,83 +323,71 @@ export default function LivroDetalhes() {
         </div>
 
         <div className="detalhes-coluna-direita">
-          <img
-            src={coverImage}
-            alt={`Capa de ${book.title}`}
-            className="detalhes-capa"
-          />
-
-          <button
-            className={`btn-add-estante ${isAddedToShelf ? "added" : ""}`}
-            onClick={handleOpenAddModal}
-            disabled={isAddedToShelf}
+          <img src={coverImage} alt={`Capa de ${book.title}`} className="detalhes-capa" />
+          
+          <button 
+            className={`btn-add-estante ${isAddedToShelf ? "remove-mode" : ""}`}
+            onClick={handleShelfAction}
           >
-            {isAddedToShelf
-              ? "Adicionado à Estante"
-              : "Adicionar à minha estante"}
+            {isAddedToShelf ? "Remover da minha estante" : "Adicionar à minha estante"}
           </button>
         </div>
       </main>
 
-      {/* MODAL DE SOLICITAÇÃO */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <h2 className="proposta-form-title">Troca com {targetUser?.nome}</h2>
+        <h2 className="proposta-form-title">
+          Troca com {targetUser?.nome}
+        </h2>
         <form className="proposta-form" onSubmit={handleSubmitProposta}>
           <div className="form-group">
             <label htmlFor="livro-oferecido">Livro para oferecer:</label>
-            <select
+            <select 
               id="livro-oferecido"
               value={livroOferecido}
               onChange={(e) => setLivroOferecido(e.target.value)}
             >
-              <option value="" disabled>
-                Selecione um livro
-              </option>
-              {meusLivros.map((livro) => (
+              <option value="" disabled>Selecione um livro</option>
+              {meusLivros.map(livro => (
                 <option key={livro.id} value={livro.id}>
                   {livro.titulo}
                 </option>
               ))}
             </select>
           </div>
-
+          
           <div className="form-group">
             <label htmlFor="data-hora">Data e Hora Sugeridas:</label>
-            <input
-              type="datetime-local"
+            <input 
+              type="datetime-local" 
               id="data-hora"
               value={dataHora}
               onChange={(e) => setDataHora(e.target.value)}
             />
           </div>
-
+          
           <div className="form-group">
             <label htmlFor="local">Local Sugerido:</label>
-            <input
-              type="text"
+            <input 
+              type="text" 
               id="local"
               placeholder="Ex: Pátio da Biblioteca"
               value={local}
               onChange={(e) => setLocal(e.target.value)}
             />
           </div>
-
+          
           <div className="form-group">
             <label htmlFor="observacao">Observação (opcional):</label>
-            <textarea
-              id="observacao"
+            <textarea 
+              id="observacao" 
               rows="3"
               value={observacao}
               onChange={(e) => setObservacao(e.target.value)}
             ></textarea>
           </div>
-
+          
           <div className="proposta-modal-actions">
-            <button
-              type="button"
-              className="btn-fechar-modal"
-              onClick={closeModal}
-            >
+            <button type="button" className="btn-fechar-modal" onClick={closeModal}>
               Cancelar
             </button>
             <button type="submit" className="btn-enviar-proposta">
@@ -394,11 +397,34 @@ export default function LivroDetalhes() {
         </form>
       </Modal>
 
-      <AddBookModal
-        isOpen={isAddBookModalOpen}
+      <Modal isOpen={isRemoveModalOpen} onClose={() => setIsRemoveModalOpen(false)}>
+        <h2 className="proposta-form-title">Remover Livro</h2>
+        <p className="remove-modal-text">
+          Tem certeza que deseja remover <strong>{book.title}</strong> da sua estante?
+        </p>
+        <div className="proposta-modal-actions">
+          <button 
+            type="button" 
+            className="btn-fechar-modal" 
+            onClick={() => setIsRemoveModalOpen(false)}
+          >
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            className="btn-remover-confirm" 
+            onClick={handleRemoveFromShelf}
+          >
+            Sim, Remover
+          </button>
+        </div>
+      </Modal>
+
+      <AddBookModal 
+        isOpen={isAddBookModalOpen} 
         onClose={() => setIsAddBookModalOpen(false)}
-        initialBook={currentBookData}
-        onSuccess={() => setIsAddedToShelf(true)}
+        initialBook={currentBookData} 
+        onSuccess={handleSuccessAdd} 
       />
     </>
   );

@@ -99,7 +99,7 @@
 .detalhes-capa {
   width: 100%;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
   margin-bottom: 15px;
 }
 
@@ -120,9 +120,12 @@
   background-color: #79a93f;
 }
 
-.btn-add-estante.added {
-  background-color: #b0b0b0;
-  cursor: not-allowed;
+.btn-add-estante.remove-mode {
+  background-color: #e53935;
+}
+
+.btn-add-estante.remove-mode:hover {
+  background-color: #b71c1c;
 }
 
 .loading-container {
@@ -186,7 +189,8 @@
 }
 
 .btn-fechar-modal,
-.btn-enviar-proposta {
+.btn-enviar-proposta,
+.btn-remover-confirm {
   padding: 12px 20px;
   border-radius: 10px;
   font-size: 1rem;
@@ -201,9 +205,17 @@
   background-color: #8BC34A;
   color: white;
 }
-
 .btn-enviar-proposta:hover {
   background-color: #79a93f;
+}
+
+.btn-remover-confirm {
+  background-color: #e53935;
+  color: white;
+}
+
+.btn-remover-confirm:hover {
+  background-color: #b71c1c;
 }
 
 .btn-fechar-modal {
@@ -211,7 +223,14 @@
   color: #4B2E2E;
   border: 1px solid #ccc;
 }
-
 .btn-fechar-modal:hover {
   background-color: #f0f0f0;
+}
+
+.remove-modal-text {
+  font-size: 1.1rem;
+  color: #555;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 20px;
 }
