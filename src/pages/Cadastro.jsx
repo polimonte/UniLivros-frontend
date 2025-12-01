@@ -44,14 +44,26 @@ export default function Cadastro() {
 
     setIsLoading(true);
 
+    // --- PASSO 1: Montar o email completo ---
+    const emailCompleto = `${email}@souunit.com.br`;
+
     try {
+      console.log("Enviando dados:", {
+        nome: name,
+        email: emailCompleto,
+        matricula,
+        senha: password,
+        curso,
+        semestre,
+      });
+
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome: name,
-          email: email,
-          matricula: matricula,
+          email: emailCompleto, // Envia o email completo
+          matricula: matricula, // Garante que matrícula vai como número
           curso: curso,
           semestre: semestre,
           senha: password,
@@ -64,9 +76,9 @@ export default function Cadastro() {
         toast.success("Cadastro realizado com sucesso!");
         navigate("/login");
       } else {
-        const errorMessage =
-          data.message || data.error || "Erro ao realizar cadastro.";
-        toast.error(errorMessage);
+        console.error("Erro retornado pelo Backend:", data);
+        const msg = data.message || data.error || JSON.stringify(data);
+        toast.error(`Erro: ${msg}`);
       }
     } catch (error) {
       console.error("Erro na requisição:", error);

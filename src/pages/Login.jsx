@@ -35,11 +35,17 @@ export default function Login() {
 
     setIsLoading(true);
 
+    // --- LÓGICA DO EMAIL COMPLETO ---
+    const emailCompleto = `${email}@souunit.com.br`;
+
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, senha: password }),
+        body: JSON.stringify({
+          email: emailCompleto, // Envia o email completo
+          senha: password,
+        }),
       });
 
       const data = await response.json();

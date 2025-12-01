@@ -228,3 +228,38 @@
 .edit-password-toggle:hover {
   color: #4B2E2E;
 }
+
+
+.edit-email-row {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.edit-email-row input {
+  flex: 1;
+  padding: 10px;
+  padding-right: 145px;
+  /* Espaço para o domínio */
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: 'Montserrat', sans-serif;
+  box-sizing: border-box;
+}
+
+.edit-email-domain {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eee;
+  color: #555;
+  font-size: 0.9rem;
+  padding: 0 10px;
+  border-radius: 0 8px 8px 0;
+  pointer-events: none;
+}

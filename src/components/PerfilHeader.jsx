@@ -22,10 +22,13 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
 
   useEffect(() => {
     if (isEditModalOpen) {
+      // Separa o email para mostrar apenas o prefixo no input
+      const emailPrefix = user.email ? user.email.split("@")[0] : "";
+
       setFormData({
         name: user.name || "",
         curso: user.curso || "",
-        email: "jonatas.lopes@souunit.com.br",
+        email: emailPrefix,
         senhaAtual: "",
         novaSenha: "",
         confirmarNovaSenha: "",
@@ -59,7 +62,19 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
       }
     }
 
-    console.log("Dados salvos:", formData);
+    // LÓGICA DO EMAIL COMPLETO PARA SALVAR
+    const emailCompleto = `${formData.email}@souunit.com.br`;
+
+    const dataToSave = {
+      ...formData,
+      email: emailCompleto,
+    };
+
+    console.log("Dados salvos:", dataToSave);
+
+    // AQUI VOCÊ FARIA O FETCH PARA ATUALIZAR O USUÁRIO (PUT)
+    // await fetch(...)
+
     toast.success("Perfil atualizado com sucesso!");
     setIsEditModalOpen(false);
   };
@@ -146,14 +161,19 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
               onChange={handleInputChange}
             />
           </div>
+
+          {/* CAMPO DE EMAIL COM DOMÍNIO FIXO */}
           <div className="form-group">
             <label>E-mail</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-            />
+            <div className="edit-email-row">
+              <input
+                type="text"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+              />
+              <span className="edit-email-domain">@souunit.com.br</span>
+            </div>
           </div>
 
           <div className="edit-divider"></div>

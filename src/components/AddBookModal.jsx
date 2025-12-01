@@ -16,7 +16,7 @@ export default function AddBookModal({
   const [isSearching, setIsSearching] = useState(false);
 
   const [selectedBook, setSelectedBook] = useState(null);
-  const [estado, setEstado] = useState("OTIMO");
+  const [condicao, setCondicao] = useState("USADO_BOM");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function AddBookModal({
         setSearchResults([]);
         setSearchQuery("");
       }
-      setEstado("OTIMO");
+      setCondicao("USADO_BOM");
     }
   }, [isOpen, initialBook]);
 
@@ -48,16 +48,20 @@ export default function AddBookModal({
       const data = await response.json();
 
       const books = (data.items || []).map((item) => ({
-        googleId: item.id,
         titulo: item.volumeInfo.title,
         autor: item.volumeInfo.authors
           ? item.volumeInfo.authors[0]
           : "Autor Desconhecido",
+        editora: item.volumeInfo.publisher || "Editora não informada",
+        genero: item.volumeInfo.categories
+          ? item.volumeInfo.categories[0]
+          : "Geral",
         ano: item.volumeInfo.publishedDate
           ? item.volumeInfo.publishedDate.substring(0, 4)
-          : "",
+          : "2000",
         imagemUrl: item.volumeInfo.imageLinks?.thumbnail || "",
         descricao: item.volumeInfo.description || "",
+        googleId: item.id,
       }));
 
       setSearchResults(books);
@@ -85,9 +89,19 @@ export default function AddBookModal({
       }
 
       const payload = {
-        ...selectedBook,
-        estado: estado,
+        titulo: selectedBook.titulo,
+        autor: selectedBook.autor,
+        editora: selectedBook.editora,
+        genero: selectedBook.genero,
+        ano: parseInt(selectedBook.ano),
+        descricao: selectedBook.descricao
+          ? selectedBook.descricao.substring(0, 499)
+          : "",
+        condicao: condicao,
+        isbn: selectedBook.isbn,
       };
+
+      console.log("Enviando Payload:", payload);
 
       const response = await fetch(`${API_BASE_URL}/livros`, {
         method: "POST",
@@ -104,9 +118,15 @@ export default function AddBookModal({
         onClose();
       } else {
         const data = await response.json();
-        toast.error(data.message || "Erro ao adicionar livro.");
+        if (data.errors) {
+          const msgs = data.errors.map((e) => e.defaultMessage).join(", ");
+          toast.error("Erro de validação: " + msgs);
+        } else {
+          toast.error(data.message || "Erro ao adicionar livro.");
+        }
       }
     } catch (error) {
+      console.error(error);
       toast.error("Erro de conexão com o servidor.");
     } finally {
       setIsSubmitting(false);
@@ -176,20 +196,23 @@ export default function AddBookModal({
                     <strong>Autor:</strong> {selectedBook.autor}
                   </p>
                   <p>
+                    <strong>Editora:</strong> {selectedBook.editora}
+                  </p>
+                  <p>
                     <strong>Ano:</strong> {selectedBook.ano}
                   </p>
 
                   <div className="form-group">
                     <label>Estado de Conservação:</label>
                     <select
-                      value={estado}
-                      onChange={(e) => setEstado(e.target.value)}
+                      value={condicao}
+                      onChange={(e) => setCondicao(e.target.value)}
                     >
                       <option value="NOVO">Novo</option>
-                      <option value="SEMINOVO">Seminovo</option>
-                      <option value="OTIMO">Ótimo Estado</option>
-                      <option value="BOM">Bom Estado</option>
-                      <option value="USADO">Usado / Com marcas</option>
+                      <option value="SEMI_NOVO">Seminovo</option>
+                      <option value="USADO_BOM">Usado - Bom Estado</option>
+                      <option value="USADO_REGULAR">Usado - Regular</option>
+                      <option value="USADO_RUIM">Usado - Ruim</option>
                     </select>
                   </div>
                 </div>
