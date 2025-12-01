@@ -62,6 +62,8 @@ export default function LivroDetalhes() {
             googleBookData = {
               title: backendData.titulo,
               authors: [backendData.autor],
+              publisher: backendData.editora,
+              categories: [backendData.genero],
               description: backendData.descricao,
               publishedDate: backendData.ano.toString(),
               imageLinks: { thumbnail: "" }
@@ -239,9 +241,12 @@ export default function LivroDetalhes() {
     googleId: /^\d+$/.test(id) ? null : id,
     titulo: book.title,
     autor: book.authors ? book.authors[0] : "Desconhecido",
-    ano: book.publishedDate ? book.publishedDate.substring(0, 4) : "",
+    editora: book.publisher || "Editora não informada",
+    genero: book.categories ? book.categories[0] : "Geral",
+    ano: book.publishedDate ? book.publishedDate.substring(0, 4) : "2000",
     imagemUrl: book.imageLinks?.thumbnail || "",
-    descricao: book.description || ""
+    descricao: book.description || "",
+    isbn: (book.industryIdentifiers && book.industryIdentifiers.length > 0) ? book.industryIdentifiers[0].identifier : ""
   };
 
   return (
@@ -401,6 +406,8 @@ export default function LivroDetalhes() {
         <h2 className="proposta-form-title">Remover Livro</h2>
         <p className="remove-modal-text">
           Tem certeza que deseja remover <strong>{book.title}</strong> da sua estante?
+          <br />
+          Esta ação não pode ser desfeita.
         </p>
         <div className="proposta-modal-actions">
           <button 
