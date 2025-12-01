@@ -35,24 +35,29 @@ export default function Login() {
 
     setIsLoading(true);
 
-    // --- LÓGICA DO EMAIL COMPLETO ---
     const emailCompleto = `${email}@souunit.com.br`;
 
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: emailCompleto, // Envia o email completo
-          senha: password,
-        }),
+        body: JSON.stringify({ email: emailCompleto, senha: password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        if (data.token) localStorage.setItem("token", data.token);
-        if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        } else {
+          console.error("Token não veio na resposta:", data);
+        }
+
+        if (data.user) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+        } else {
+          console.error("Dados do usuário não vieram na resposta:", data);
+        }
 
         toast.success("Login realizado com sucesso!");
         navigate("/dashboard");

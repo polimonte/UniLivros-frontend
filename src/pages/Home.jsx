@@ -17,7 +17,7 @@ export default function Home() {
           </div>
           <div className="hero-image-wrapper">
             <img
-              Src={heroImage}
+              src={heroImage}
               alt="Pessoas compartilhando livros"
               className="hero-image"
             />

@@ -46,7 +46,11 @@ export default function DashboardHeader({ onMenuClick, onAddBookClick }) {
             +
           </button>
 
-          <button className="dash-icon-btn profile-btn" onClick={onMenuClick}>
+          <button
+            className="dash-icon-btn profile-btn"
+            onClick={onMenuClick}
+            title="Menu / Perfil"
+          >
             &#128100;
           </button>
         </nav>
