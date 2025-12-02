@@ -29,6 +29,7 @@ export default function NovaSenha() {
       toast.error("Por favor, preencha todos os campos.");
       return;
     }
+
     if (password !== confirmPassword) {
       toast.error("As senhas não conferem!");
       return;
@@ -48,11 +49,13 @@ export default function NovaSenha() {
       });
 
       if (response.ok) {
+        toast.success("Senha redefinida com sucesso!");
         navigate("/login", {
           state: { message: "Senha redefinida com sucesso! Faça seu login." },
         });
       } else {
-        toast.error("Erro ao redefinir senha.");
+        const data = await response.json();
+        toast.error(data.message || "Erro ao redefinir senha.");
       }
     } catch (error) {
       toast.error("Erro de conexão.");
@@ -79,14 +82,16 @@ export default function NovaSenha() {
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
             />
+
             <input
               type="password"
-              placeholder="Confirme Senha"
+              placeholder="Confirme a Senha"
               className="form-input"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
             />
+
             <button type="submit" className="form-btn" disabled={isLoading}>
               {isLoading ? "Salvando..." : "Confirmar"}
             </button>

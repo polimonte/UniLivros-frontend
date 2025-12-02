@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Header from "../components/Header";
+import { API_BASE_URL } from "../services/api";
 import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
 
@@ -9,18 +10,43 @@ export default function SolicitarCodigo() {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const safeJson = async (response) => {
+    try {
+      return await response.json();
+    } catch (e) {
+      return {}; // evita crash caso backend não envie JSON
+    }
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
     if (!email) {
       toast.error("Por favor, preencha seu e-mail.");
       return;
     }
 
-    console.log("--- Solicitação de Código ---");
-    console.log("E-mail:", email);
-    toast.success("Código enviado (simulado)! Redirecionando...");
+    const emailCompleto = `${email}@souunit.com.br`;
 
-    navigate("/confirmar-codigo");
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailCompleto }),
+      });
+
+      const data = await safeJson(response);
+
+      if (response.ok) {
+        toast.success(data.message || "Código enviado!");
+        navigate("/confirmar-codigo", { state: { email: emailCompleto } });
+      } else {
+        toast.error(data.message || "Erro ao enviar código.");
+      }
+    } catch (error) {
+      console.error("Erro ao solicitar código:", error);
+      toast.error("Erro ao conectar com o servidor.");
+    }
   };
 
   return (
@@ -38,14 +64,14 @@ export default function SolicitarCodigo() {
             <div className="email-row">
               <input
                 type="text"
-                placeholder="Email"
+                placeholder="Seu e-mail"
                 className="form-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
               />
               <span className="email-domain">@souunit.com.br</span>
             </div>
+
             <button type="submit" className="form-btn">
               Enviar Código
             </button>

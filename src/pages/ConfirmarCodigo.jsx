@@ -2,53 +2,33 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import Header from "../components/Header";
-import { API_BASE_URL } from "../services/api";
 import "./Forms.css";
 import bookIcon from "../assets/book-icon.jpg";
 
 export default function ConfirmarCodigo() {
   const [codigo, setCodigo] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // O email deve vir da página anterior (EsqueceuSenha)
   const email = location.state?.email;
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
+
     if (!codigo) {
       toast.error("Por favor, insira o código.");
       return;
     }
+
     if (!email) {
       toast.error("Email não identificado. Reinicie o processo.");
       navigate("/login");
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/validate-reset-code`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code: codigo }),
-      });
-
-      if (response.ok) {
-        toast.success("Código validado!");
-        // Passamos o email e o código para a próxima tela para autorizar a troca
-        navigate("/nova-senha", { state: { email, code: codigo } });
-      } else {
-        toast.error("Código inválido.");
-      }
-    } catch (error) {
-      toast.error("Erro de conexão.");
-    } finally {
-      setIsLoading(false);
-    }
+    // Apenas avança — validação real será feita em /reset-password
+    navigate("/nova-senha", { state: { email, code: codigo } });
   };
 
   return (
@@ -70,8 +50,9 @@ export default function ConfirmarCodigo() {
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
             />
-            <button type="submit" className="form-btn" disabled={isLoading}>
-              {isLoading ? "Validando..." : "Confirmar"}
+
+            <button type="submit" className="form-btn">
+              Confirmar
             </button>
           </form>
         </section>
