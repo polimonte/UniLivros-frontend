@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot App",
+      "request": "launch",
+      "env": {
+        "MAIL_PASSWORD": "sua_senha_de_16_caracteres",
+        "MAIL_USERNAME": "suporteunilivros@gmail.com"
+      }
+    }
+  ]
+}

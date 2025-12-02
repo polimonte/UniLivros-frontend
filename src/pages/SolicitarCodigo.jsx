@@ -8,6 +8,7 @@ import bookIcon from "../assets/book-icon.jpg";
 
 export default function SolicitarCodigo() {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const safeJson = async (response) => {
@@ -18,6 +19,11 @@ export default function SolicitarCodigo() {
     }
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -26,7 +32,13 @@ export default function SolicitarCodigo() {
       return;
     }
 
+    if (!validateEmail(email)) {
+      toast.error("Por favor, insira um e-mail válido (sem o domínio).");
+      return;
+    }
+
     const emailCompleto = `${email}@souunit.com.br`;
+    setIsLoading(true);
 
     try {
       const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
@@ -38,15 +50,34 @@ export default function SolicitarCodigo() {
       const data = await safeJson(response);
 
       if (response.ok) {
-        toast.success(data.message || "Código enviado!");
-        navigate("/confirmar-codigo", { state: { email: emailCompleto } });
+        toast.success(data.message || "Código enviado para seu e-mail!");
+        navigate("/confirmar-codigo", {
+          state: {
+            email: emailCompleto,
+            from: "forgot-password",
+          },
+        });
       } else {
-        toast.error(data.message || "Erro ao enviar código.");
+        toast.error(
+          data.message ||
+            "Erro ao enviar código. Verifique se o e-mail está cadastrado."
+        );
       }
     } catch (error) {
       console.error("Erro ao solicitar código:", error);
-      toast.error("Erro ao conectar com o servidor.");
+
+      if (error.message.includes("Failed to fetch")) {
+        toast.error("Erro de conexão com o servidor. Verifique sua internet.");
+      } else {
+        toast.error("Erro ao conectar com o servidor.");
+      }
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleBackToLogin = () => {
+    navigate("/login");
   };
 
   return (
@@ -56,26 +87,63 @@ export default function SolicitarCodigo() {
         <section className="form-card">
           <img src={bookIcon} alt="Ícone de livro" className="form-icon" />
 
+          <h2 className="form-title">Recuperar Senha</h2>
+
           <p className="form-info-text">
-            Digite seu e-mail para enviarmos um código de recuperação.
+            Digite seu e-mail institucional para enviarmos um código de
+            recuperação.
           </p>
 
           <form className="form-form" onSubmit={handleSubmit}>
             <div className="email-row">
               <input
                 type="text"
-                placeholder="Seu e-mail"
-                className="form-input"
+                placeholder="seu.usuario"
+                className="form-input email-input"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value.trim())}
+                disabled={isLoading}
               />
               <span className="email-domain">@souunit.com.br</span>
             </div>
 
-            <button type="submit" className="form-btn">
-              Enviar Código
-            </button>
+            <div className="form-actions">
+              <button type="submit" className="form-btn" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <span className="spinner"></span>
+                    Enviando...
+                  </>
+                ) : (
+                  "Enviar Código"
+                )}
+              </button>
+
+              <button
+                type="button"
+                className="form-btn secondary-btn"
+                onClick={handleBackToLogin}
+                disabled={isLoading}
+              >
+                Voltar para Login
+              </button>
+            </div>
           </form>
+
+          <div className="form-footer">
+            <p className="form-help-text">
+              Não recebeu o código? Verifique sua pasta de spam ou
+              <button
+                type="button"
+                className="text-link"
+                onClick={() =>
+                  toast.info("Aguarde alguns minutos e tente novamente.")
+                }
+              >
+                clique aqui para reenviar
+              </button>
+            </p>
+          </div>
         </section>
       </main>
     </div>

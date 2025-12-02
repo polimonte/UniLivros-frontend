@@ -6,6 +6,7 @@ import "./PerfilHeader.css";
 
 export default function PerfilHeader({ user, activeTab, setActiveTab }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -36,12 +37,57 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
       setShowCurrent(false);
       setShowNew(false);
       setShowConfirmNew(false);
+      setPasswordStrength(0); // Reseta a força ao abrir o modal
     }
   }, [isEditModalOpen, user]);
+
+  // Lógica de Força de Senha (copiada de NovaSenha.js)
+  const validatePassword = (password) => {
+    if (password.length < 6) return "A senha deve ter pelo menos 6 caracteres";
+    if (!/[A-Z]/.test(password)) return "Inclua pelo menos uma letra maiúscula";
+    if (!/[0-9]/.test(password)) return "Inclua pelo menos um número";
+    return null;
+  };
+
+  const calculatePasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 6) strength += 25;
+    if (/[A-Z]/.test(password)) strength += 25;
+    if (/[0-9]/.test(password)) strength += 25;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+    return strength;
+  };
+
+  // Determina a classe CSS com base na força (APENAS RETORNA CLASSE - SEM COR AQUI)
+  const getStrengthClass = () => {
+    if (passwordStrength === 0) return "";
+    if (passwordStrength < 50) return "weak";
+    if (passwordStrength < 75) return "medium";
+    return "strong";
+  };
+
+  const getStrengthText = () => {
+    if (passwordStrength === 0) return "";
+    if (passwordStrength < 50) return "Fraca";
+    if (passwordStrength < 75) return "Média";
+    return "Forte";
+  };
+
+  const getStrengthColor = () => {
+    if (passwordStrength < 50) return "#ff4444";
+    if (passwordStrength < 75) return "#ffbb33";
+    return "#00C851";
+  };
+  // Fim da Lógica de Força de Senha
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Atualiza a força da senha apenas para o campo "novaSenha"
+    if (name === "novaSenha") {
+      setPasswordStrength(calculatePasswordStrength(value));
+    }
   };
 
   const handleSave = (e) => {
@@ -52,12 +98,15 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
         toast.error("Para alterar a senha, informe a senha atual.");
         return;
       }
-      if (formData.novaSenha !== formData.confirmarNovaSenha) {
-        toast.error("A nova senha e a confirmação não conferem.");
+
+      const passwordError = validatePassword(formData.novaSenha);
+      if (passwordError) {
+        toast.error(`Nova Senha: ${passwordError}`);
         return;
       }
-      if (formData.novaSenha.length < 6) {
-        toast.error("A nova senha deve ter pelo menos 6 caracteres.");
+
+      if (formData.novaSenha !== formData.confirmarNovaSenha) {
+        toast.error("A nova senha e a confirmação não conferem.");
         return;
       }
     }
@@ -218,7 +267,26 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
                   {showNew ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
+
+              {/* Barra de Força da Senha para Nova Senha */}
+              {formData.novaSenha && (
+                <div
+                  className={`password-strength modal-strength ${getStrengthClass()}`}
+                >
+                  <div
+                    className="strength-bar"
+                    style={{
+                      width: `${passwordStrength}%`,
+                      backgroundColor: getStrengthColor(),
+                    }}
+                  ></div>
+                  <div className="strength-text">
+                    Força: {getStrengthText()}
+                  </div>
+                </div>
+              )}
             </div>
+
             <div className="form-group">
               <label>Repetir Nova Senha</label>
               <div className="edit-password-wrapper">
@@ -239,6 +307,18 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
             </div>
           </div>
 
+          {/* Requisitos de Senha */}
+          <div className="form-footer modal-footer">
+            <p className="form-help-text">
+              A nova senha deve conter:
+              <ul className="password-requirements modal-requirements">
+                <li>✓ Pelo menos 6 caracteres</li>
+                <li>✓ Pelo menos uma letra maiúscula</li>
+                <li>✓ Pelo menos um número</li>
+              </ul>
+            </p>
+          </div>
+
           <div className="edit-modal-actions">
             <button
               type="button"
@@ -247,7 +327,11 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
             >
               Cancelar
             </button>
-            <button type="submit" className="btn-save">
+            <button
+              type="submit"
+              className="btn-save"
+              disabled={formData.novaSenha && passwordStrength < 50}
+            >
               Salvar Alterações
             </button>
           </div>

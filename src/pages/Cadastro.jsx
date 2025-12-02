@@ -16,11 +16,42 @@ export default function Cadastro() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [passwordStrength, setPasswordStrength] = useState(0); // Novo
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Lógica de Força de Senha (copiada de NovaSenha.js)
+  const validatePassword = (password) => {
+    if (password.length < 6) return "A senha deve ter pelo menos 6 caracteres";
+    if (!/[A-Z]/.test(password)) return "Inclua pelo menos uma letra maiúscula";
+    if (!/[0-9]/.test(password)) return "Inclua pelo menos um número";
+    return null;
+  };
+
+  const calculatePasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 6) strength += 25;
+    if (/[A-Z]/.test(password)) strength += 25;
+    if (/[0-9]/.test(password)) strength += 25;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+    return strength;
+  };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setPasswordStrength(calculatePasswordStrength(newPassword));
+  };
+
+  const getStrengthColor = () => {
+    if (passwordStrength < 50) return "#ff4444";
+    if (passwordStrength < 75) return "#ffbb33";
+    return "#00C851";
+  };
+  // Fim da Lógica de Força de Senha
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -37,6 +68,14 @@ export default function Cadastro() {
       toast.error("Por favor, preencha todos os campos.");
       return;
     }
+
+    // Adiciona validação de força de senha no submit
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      toast.error(passwordError);
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error("As senhas não conferem!");
       return;
@@ -44,7 +83,6 @@ export default function Cadastro() {
 
     setIsLoading(true);
 
-    // --- PASSO 1: Montar o email completo ---
     const emailCompleto = `${email}@souunit.com.br`;
 
     try {
@@ -62,8 +100,8 @@ export default function Cadastro() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome: name,
-          email: emailCompleto, // Envia o email completo
-          matricula: matricula, // Garante que matrícula vai como número
+          email: emailCompleto,
+          matricula: matricula,
           curso: curso,
           semestre: semestre,
           senha: password,
@@ -73,8 +111,12 @@ export default function Cadastro() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Cadastro realizado com sucesso!");
-        navigate("/login");
+        navigate("/login", {
+          state: {
+            message:
+              "Cadastro realizado com sucesso! Faça login para continuar.",
+          },
+        });
       } else {
         console.error("Erro retornado pelo Backend:", data);
         const msg = data.message || data.error || JSON.stringify(data);
@@ -146,7 +188,7 @@ export default function Cadastro() {
                 placeholder="Senha"
                 className="form-input"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange} // Usa o novo handler para calcular a força
                 autoComplete="new-password"
               />
               <button
@@ -158,6 +200,27 @@ export default function Cadastro() {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
+
+            {/* Barra de Força da Senha */}
+            {password && (
+              <div className="password-strength">
+                <div
+                  className="strength-bar"
+                  style={{
+                    width: `${passwordStrength}%`,
+                    backgroundColor: getStrengthColor(),
+                  }}
+                ></div>
+                <div className="strength-text">
+                  Força da senha:{" "}
+                  {passwordStrength < 50
+                    ? "Fraca"
+                    : passwordStrength < 75
+                    ? "Média"
+                    : "Forte"}
+                </div>
+              </div>
+            )}
 
             <div className="password-wrapper">
               <input
@@ -178,10 +241,28 @@ export default function Cadastro() {
               </button>
             </div>
 
-            <button type="submit" className="form-btn" disabled={isLoading}>
+            <button
+              type="submit"
+              className="form-btn"
+              disabled={isLoading || passwordStrength < 50}
+            >
+              {" "}
+              {/* Adiciona desabilitação por força */}
               {isLoading ? "Cadastrando..." : "Cadastrar"}
             </button>
           </form>
+
+          {/* Requisitos de Senha */}
+          <div className="form-footer">
+            <p className="form-help-text">
+              Sua senha deve conter:
+              <ul className="password-requirements">
+                <li>✓ Pelo menos 6 caracteres</li>
+                <li>✓ Pelo menos uma letra maiúscula</li>
+                <li>✓ Pelo menos um número</li>
+              </ul>
+            </p>
+          </div>
         </section>
       </main>
     </div>
