@@ -23,6 +23,7 @@ export default function Cadastro() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Validação de senha
   const validatePassword = (password) => {
     if (password.length < 6) return "A senha deve ter pelo menos 6 caracteres";
     if (!/[A-Z]/.test(password)) return "Inclua pelo menos uma letra maiúscula";
@@ -30,6 +31,7 @@ export default function Cadastro() {
     return null;
   };
 
+  // Cálculo da força da senha
   const calculatePasswordStrength = (password) => {
     let strength = 0;
     if (password.length >= 6) strength += 25;
@@ -51,9 +53,17 @@ export default function Cadastro() {
     return "#00C851";
   };
 
+  // Validação do email
+  const validateEmail = (email) => {
+    // Permite apenas letras, números, ponto, hífen e underscore
+    const emailRegex = /^[a-zA-Z0-9._-]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Validação de campos obrigatórios
     if (
       !name ||
       !email ||
@@ -67,38 +77,47 @@ export default function Cadastro() {
       return;
     }
 
+    // Validação do email
+    if (!validateEmail(email)) {
+      toast.error(
+        "Email inválido.  Use apenas letras, números, ponto (.), hífen (-) e underscore (_)."
+      );
+      return;
+    }
+
+    // Validação da senha
     const passwordError = validatePassword(password);
     if (passwordError) {
       toast.error(passwordError);
       return;
     }
 
+    // Confirmação de senha
     if (password !== confirmPassword) {
       toast.error("As senhas não conferem!");
       return;
     }
 
+    // Validação do semestre
+    const semestreNumero = parseInt(semestre, 10);
+    if (isNaN(semestreNumero) || semestreNumero < 1 || semestreNumero > 12) {
+      toast.error("Semestre deve ser um número entre 1 e 12");
+      return;
+    }
+
     setIsLoading(true);
 
-    const emailCompleto = `${email}@souunit.com. br`;
+    // Monta o email completo
+    const emailCompleto = `${email}@souunit.com.br`;
 
     try {
-      // ===== CORREÇÃO: Converter semestre para número =====
-      const semestreNumero = parseInt(semestre, 10);
-
-      if (isNaN(semestreNumero) || semestreNumero < 1 || semestreNumero > 12) {
-        toast.error("Semestre deve ser um número entre 1 e 12");
-        setIsLoading(false);
-        return;
-      }
-
       console.log("Enviando dados:", {
         nome: name,
         email: emailCompleto,
         matricula,
-        senha: password,
+        senha: "***",
         curso,
-        semestre: semestreNumero, // ← Agora é número
+        semestre: semestreNumero,
       });
 
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -109,25 +128,34 @@ export default function Cadastro() {
           email: emailCompleto,
           matricula: matricula,
           curso: curso,
-          semestre: semestreNumero, // ← ALTERAÇÃO: Envia como número
+          semestre: semestreNumero,
           senha: password,
         }),
       });
-      // ====================================================
 
       const data = await response.json();
 
       if (response.ok) {
+        toast.success("Cadastro realizado com sucesso!");
         navigate("/login", {
           state: {
             message:
-              "Cadastro realizado com sucesso!  Faça login para continuar.",
+              "Cadastro realizado com sucesso! Faça login para continuar.",
           },
         });
       } else {
         console.error("Erro retornado pelo Backend:", data);
-        const msg = data.message || data.error || JSON.stringify(data);
-        toast.error(`Erro: ${msg}`);
+
+        // Tratamento de erros de validação
+        if (data.errors && typeof data.errors === "object") {
+          const errorMessages = Object.entries(data.errors)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join("\n");
+          toast.error(`Erro de validação:\n${errorMessages}`);
+        } else {
+          const msg = data.message || data.error || "Erro ao realizar cadastro";
+          toast.error(msg);
+        }
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
@@ -147,23 +175,25 @@ export default function Cadastro() {
           <form className="form-form" onSubmit={handleSubmit}>
             <input
               type="text"
-              placeholder="Nome"
+              placeholder="Nome Completo"
               className="form-input"
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoComplete="name"
             />
+
             <div className="email-row">
               <input
                 type="text"
                 placeholder="Email"
                 className="form-input"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value.trim())}
                 autoComplete="email"
               />
               <span className="email-domain">@souunit.com.br</span>
             </div>
+
             <input
               type="text"
               placeholder="Matrícula"
@@ -172,15 +202,16 @@ export default function Cadastro() {
               onChange={(e) => setMatricula(e.target.value)}
               autoComplete="off"
             />
+
             <input
               type="text"
-              placeholder="Curso"
+              placeholder="Curso (ex: ADS, Direito, Medicina)"
               className="form-input"
               value={curso}
               onChange={(e) => setCurso(e.target.value)}
               autoComplete="off"
             />
-            {/* ===== ALTERAÇÃO: Mudei para type="number" ===== */}
+
             <input
               type="number"
               placeholder="Semestre (1-12)"
@@ -191,7 +222,6 @@ export default function Cadastro() {
               max="12"
               autoComplete="off"
             />
-            {/* =============================================== */}
 
             <div className="password-wrapper">
               <input
@@ -212,6 +242,7 @@ export default function Cadastro() {
               </button>
             </div>
 
+            {/* Barra de Força da Senha */}
             {password && (
               <div className="password-strength">
                 <div
@@ -260,15 +291,19 @@ export default function Cadastro() {
             </button>
           </form>
 
+          {/* Requisitos */}
           <div className="form-footer">
             <p className="form-help-text">
-              Sua senha deve conter:
-              <ul className="password-requirements">
-                <li>✓ Pelo menos 6 caracteres</li>
-                <li>✓ Pelo menos uma letra maiúscula</li>
-                <li>✓ Pelo menos um número</li>
-              </ul>
+              <strong>Requisitos:</strong>
             </p>
+            <ul className="password-requirements">
+              <li>
+                ✓ Email: apenas letras, números, ponto, hífen e underscore
+              </li>
+              <li>✓ Senha: mínimo 6 caracteres</li>
+              <li>✓ Senha: pelo menos uma letra maiúscula</li>
+              <li>✓ Senha: pelo menos um número</li>
+            </ul>
           </div>
         </section>
       </main>
