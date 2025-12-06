@@ -16,7 +16,7 @@ export default function AddBookModal({
   const [isSearching, setIsSearching] = useState(false);
 
   const [selectedBook, setSelectedBook] = useState(null);
-  const [condicao, setCondicao] = useState("USADO_BOM"); 
+  const [condicao, setCondicao] = useState("USADO_BOM");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -53,14 +53,20 @@ export default function AddBookModal({
           ? item.volumeInfo.authors[0]
           : "Autor Desconhecido",
         editora: item.volumeInfo.publisher || "Editora não informada",
-        genero: item.volumeInfo.categories ? item.volumeInfo.categories[0] : "Geral",
+        genero: item.volumeInfo.categories
+          ? item.volumeInfo.categories[0]
+          : "Geral",
         ano: item.volumeInfo.publishedDate
           ? item.volumeInfo.publishedDate.substring(0, 4)
-          : "2000", 
+          : "2000",
         imagemUrl: item.volumeInfo.imageLinks?.thumbnail || "",
         descricao: item.volumeInfo.description || "",
-        googleId: item.id, 
-        isbn: (item.volumeInfo.industryIdentifiers && item.volumeInfo.industryIdentifiers.length > 0) ? item.volumeInfo.industryIdentifiers[0].identifier : ""
+        googleId: item.id,
+        isbn:
+          item.volumeInfo.industryIdentifiers &&
+          item.volumeInfo.industryIdentifiers.length > 0
+            ? item.volumeInfo.industryIdentifiers[0].identifier
+            : "",
       }));
 
       setSearchResults(books);
@@ -87,6 +93,7 @@ export default function AddBookModal({
         return;
       }
 
+      // ===== ALTERAÇÃO: Adicionando googleId ao payload =====
       const payload = {
         titulo: selectedBook.titulo,
         autor: selectedBook.autor,
@@ -94,9 +101,13 @@ export default function AddBookModal({
         genero: selectedBook.genero || "Geral",
         isbn: selectedBook.isbn || "",
         ano: parseInt(selectedBook.ano) || 2000,
-        descricao: selectedBook.descricao ? selectedBook.descricao.substring(0, 499) : "", 
-        condicao: condicao, 
+        descricao: selectedBook.descricao
+          ? selectedBook.descricao.substring(0, 499)
+          : "",
+        condicao: condicao,
+        googleId: selectedBook.googleId || null, // ✅ ADICIONADO
       };
+      // ======================================================
 
       console.log("Enviando Payload:", payload);
 
@@ -115,12 +126,12 @@ export default function AddBookModal({
         onClose();
       } else {
         const data = await response.json();
-        
+
         if (data.errors && Array.isArray(data.errors)) {
-            const msgs = data.errors.map(e => e.defaultMessage).join(", ");
-            toast.error("Erro de validação: " + msgs);
+          const msgs = data.errors.map((e) => e.defaultMessage).join(", ");
+          toast.error("Erro de validação: " + msgs);
         } else {
-            toast.error(data.message || "Erro ao adicionar livro.");
+          toast.error(data.message || "Erro ao adicionar livro.");
         }
       }
     } catch (error) {
@@ -183,7 +194,7 @@ export default function AddBookModal({
                 <img
                   src={
                     selectedBook.imagemUrl ||
-                    "https://via.placeholder.com/100x150"
+                    "https://via. placeholder.com/100x150"
                   }
                   alt="Capa"
                   className="confirm-cover"
@@ -194,7 +205,8 @@ export default function AddBookModal({
                     <strong>Autor:</strong> {selectedBook.autor}
                   </p>
                   <p>
-                    <strong>Editora:</strong> {selectedBook.editora || "Não informada"}
+                    <strong>Editora:</strong>{" "}
+                    {selectedBook.editora || "Não informada"}
                   </p>
                   <p>
                     <strong>Ano:</strong> {selectedBook.ano}

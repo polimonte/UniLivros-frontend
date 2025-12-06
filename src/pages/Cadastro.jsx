@@ -16,14 +16,13 @@ export default function Cadastro() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [passwordStrength, setPasswordStrength] = useState(0); // Novo
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Lógica de Força de Senha (copiada de NovaSenha.js)
   const validatePassword = (password) => {
     if (password.length < 6) return "A senha deve ter pelo menos 6 caracteres";
     if (!/[A-Z]/.test(password)) return "Inclua pelo menos uma letra maiúscula";
@@ -51,7 +50,6 @@ export default function Cadastro() {
     if (passwordStrength < 75) return "#ffbb33";
     return "#00C851";
   };
-  // Fim da Lógica de Força de Senha
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -69,7 +67,6 @@ export default function Cadastro() {
       return;
     }
 
-    // Adiciona validação de força de senha no submit
     const passwordError = validatePassword(password);
     if (passwordError) {
       toast.error(passwordError);
@@ -83,16 +80,25 @@ export default function Cadastro() {
 
     setIsLoading(true);
 
-    const emailCompleto = `${email}@souunit.com.br`;
+    const emailCompleto = `${email}@souunit.com. br`;
 
     try {
+      // ===== CORREÇÃO: Converter semestre para número =====
+      const semestreNumero = parseInt(semestre, 10);
+
+      if (isNaN(semestreNumero) || semestreNumero < 1 || semestreNumero > 12) {
+        toast.error("Semestre deve ser um número entre 1 e 12");
+        setIsLoading(false);
+        return;
+      }
+
       console.log("Enviando dados:", {
         nome: name,
         email: emailCompleto,
         matricula,
         senha: password,
         curso,
-        semestre,
+        semestre: semestreNumero, // ← Agora é número
       });
 
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -103,10 +109,11 @@ export default function Cadastro() {
           email: emailCompleto,
           matricula: matricula,
           curso: curso,
-          semestre: semestre,
+          semestre: semestreNumero, // ← ALTERAÇÃO: Envia como número
           senha: password,
         }),
       });
+      // ====================================================
 
       const data = await response.json();
 
@@ -114,7 +121,7 @@ export default function Cadastro() {
         navigate("/login", {
           state: {
             message:
-              "Cadastro realizado com sucesso! Faça login para continuar.",
+              "Cadastro realizado com sucesso!  Faça login para continuar.",
           },
         });
       } else {
@@ -173,14 +180,18 @@ export default function Cadastro() {
               onChange={(e) => setCurso(e.target.value)}
               autoComplete="off"
             />
+            {/* ===== ALTERAÇÃO: Mudei para type="number" ===== */}
             <input
-              type="text"
-              placeholder="Semestre"
+              type="number"
+              placeholder="Semestre (1-12)"
               className="form-input"
               value={semestre}
               onChange={(e) => setSemestre(e.target.value)}
+              min="1"
+              max="12"
               autoComplete="off"
             />
+            {/* =============================================== */}
 
             <div className="password-wrapper">
               <input
@@ -188,7 +199,7 @@ export default function Cadastro() {
                 placeholder="Senha"
                 className="form-input"
                 value={password}
-                onChange={handlePasswordChange} // Usa o novo handler para calcular a força
+                onChange={handlePasswordChange}
                 autoComplete="new-password"
               />
               <button
@@ -201,7 +212,6 @@ export default function Cadastro() {
               </button>
             </div>
 
-            {/* Barra de Força da Senha */}
             {password && (
               <div className="password-strength">
                 <div
@@ -246,13 +256,10 @@ export default function Cadastro() {
               className="form-btn"
               disabled={isLoading || passwordStrength < 50}
             >
-              {" "}
-              {/* Adiciona desabilitação por força */}
               {isLoading ? "Cadastrando..." : "Cadastrar"}
             </button>
           </form>
 
-          {/* Requisitos de Senha */}
           <div className="form-footer">
             <p className="form-help-text">
               Sua senha deve conter:

@@ -47,17 +47,25 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
+        // Salvar o token
         if (data.token) {
           localStorage.setItem("token", data.token);
+          console.log("✅ Token salvo no localStorage");
         } else {
-          console.error("Token não veio na resposta:", data);
+          console.error("❌ Token não veio na resposta:", data);
         }
 
-        if (data.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
+        // ===== CORREÇÃO: A API retorna 'usuario' não 'user' =====
+        const userData = data.usuario || data.user;
+
+        if (userData) {
+          const userString = JSON.stringify(userData);
+          localStorage.setItem("user", userString);
+          console.log("✅ Usuário salvo no localStorage:", userString);
         } else {
-          console.error("Dados do usuário não vieram na resposta:", data);
+          console.error("❌ Dados do usuário não vieram na resposta:", data);
         }
+        // ========================================================
 
         toast.success("Login realizado com sucesso!");
         navigate("/dashboard");
@@ -65,7 +73,7 @@ export default function Login() {
         const errorMessage =
           data.message ||
           data.error ||
-          "Falha no login. Verifique suas credenciais.";
+          "Falha no login. Verifique suas credenciais. ";
         toast.error(errorMessage);
       }
     } catch (error) {

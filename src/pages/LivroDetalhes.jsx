@@ -18,6 +18,7 @@ export default function LivroDetalhes() {
   const [activeTab, setActiveTab] = useState("sinopse");
 
   const [owners, setOwners] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const [isAddedToShelf, setIsAddedToShelf] = useState(false);
   const [internalId, setInternalId] = useState(null);
@@ -33,6 +34,19 @@ export default function LivroDetalhes() {
   const [dataHora, setDataHora] = useState("");
   const [local, setLocal] = useState("");
   const [observacao, setObservacao] = useState("");
+
+  // Obter ID do usuário logado
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setCurrentUserId(parsedUser.id);
+      } catch (e) {
+        console.error("Erro ao ler usuário logado:", e);
+      }
+    }
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -54,7 +68,7 @@ export default function LivroDetalhes() {
 
         try {
           const searchRes = await fetch(
-            `https://www.googleapis.com/books/v1/volumes? q=${encodeURIComponent(
+            `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
               backendData.titulo
             )}&maxResults=1`
           );
@@ -75,6 +89,15 @@ export default function LivroDetalhes() {
           }
         } catch (err) {
           console.error("Erro Google", err);
+          googleBookData = {
+            title: backendData.titulo,
+            authors: [backendData.autor],
+            publisher: backendData.editora,
+            categories: [backendData.genero],
+            description: backendData.descricao,
+            publishedDate: backendData.ano.toString(),
+            imageLinks: { thumbnail: "" },
+          };
         }
       } else {
         const googleRes = await fetch(
@@ -89,9 +112,7 @@ export default function LivroDetalhes() {
 
       const token = localStorage.getItem("token");
       if (token) {
-        // ===== ALTERAÇÃO PRINCIPAL: Buscar usuários que possuem o livro =====
         if (backendBookId) {
-          // Livro do backend - busca por ID interno
           try {
             const ownersRes = await fetch(
               `${API_BASE_URL}/livros/${backendBookId}/usuarios`,
@@ -101,7 +122,19 @@ export default function LivroDetalhes() {
             );
             if (ownersRes.ok) {
               const ownersData = await ownersRes.json();
-              setOwners(ownersData);
+
+              // ===== ALTERAÇÃO: Ordenar para colocar o usuário atual primeiro =====
+              const sortedOwners = ownersData.sort((a, b) => {
+                // Se 'a' é o usuário atual, coloca ele primeiro (retorna -1)
+                if (Number(a.id) === Number(currentUserId)) return -1;
+                // Se 'b' é o usuário atual, coloca ele primeiro (retorna 1)
+                if (Number(b.id) === Number(currentUserId)) return 1;
+                // Caso contrário, mantém a ordem original
+                return 0;
+              });
+
+              setOwners(sortedOwners);
+              // ====================================================================
             } else {
               setOwners([]);
             }
@@ -110,7 +143,6 @@ export default function LivroDetalhes() {
             setOwners([]);
           }
         } else {
-          // Livro do Google Books - busca por googleId
           try {
             const ownersRes = await fetch(
               `${API_BASE_URL}/livros/google/${id}/usuarios`,
@@ -120,7 +152,16 @@ export default function LivroDetalhes() {
             );
             if (ownersRes.ok) {
               const ownersData = await ownersRes.json();
-              setOwners(ownersData);
+
+              // ===== ALTERAÇÃO: Ordenar para colocar o usuário atual primeiro =====
+              const sortedOwners = ownersData.sort((a, b) => {
+                if (Number(a.id) === Number(currentUserId)) return -1;
+                if (Number(b.id) === Number(currentUserId)) return 1;
+                return 0;
+              });
+
+              setOwners(sortedOwners);
+              // ====================================================================
             } else {
               setOwners([]);
             }
@@ -129,7 +170,6 @@ export default function LivroDetalhes() {
             setOwners([]);
           }
         }
-        // ===== FIM DA ALTERAÇÃO =====
 
         const myBooksRes = await fetch(`${API_BASE_URL}/livros/meus-livros`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -166,7 +206,7 @@ export default function LivroDetalhes() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, currentUserId]); // ← Adicionei currentUserId como dependência
 
   useEffect(() => {
     fetchData();
@@ -375,18 +415,23 @@ export default function LivroDetalhes() {
                       : "Ninguém possui este livro na estante ainda.  Seja o primeiro!"}
                   </p>
                 ) : (
-                  owners.map((owner) => (
-                    <UserCard
-                      key={owner.id}
-                      id={owner.id}
-                      name={owner.nome}
-                      rating={owner.notaMedia || owner.avaliacao || 0}
-                      tradeCount={owner.totalTrocas || 0}
-                      avatarImg={owner.avatarUrl || avatarDefault}
-                      isCurrentUser={false}
-                      onTradeClick={() => handleTradeClick(owner)}
-                    />
-                  ))
+                  owners.map((owner) => {
+                    const isCurrentUser =
+                      Number(owner.id) === Number(currentUserId);
+
+                    return (
+                      <UserCard
+                        key={owner.id}
+                        id={owner.id}
+                        name={owner.nome}
+                        rating={owner.notaMedia || owner.avaliacao || 0}
+                        tradeCount={owner.totalTrocas || 0}
+                        avatarImg={owner.avatarUrl || avatarDefault}
+                        isCurrentUser={isCurrentUser}
+                        onTradeClick={() => handleTradeClick(owner)}
+                      />
+                    );
+                  })
                 )}
               </section>
             )}

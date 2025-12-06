@@ -13,6 +13,8 @@ export default function UserCard({
 }) {
   const navigate = useNavigate();
 
+  console.log("🎴 UserCard renderizado:", { id, name, isCurrentUser });
+
   const handleVerEstante = () => {
     navigate(`/perfil/${id}`);
   };
@@ -30,7 +32,11 @@ export default function UserCard({
         </div>
       </div>
       <div className="user-actions">
-        {!isCurrentUser && (
+        {isCurrentUser ? (
+          <button className="btn-ver-estante" onClick={handleVerEstante}>
+            Ver meu perfil
+          </button>
+        ) : (
           <>
             <button className="btn-ver-estante" onClick={handleVerEstante}>
               Ver estante
