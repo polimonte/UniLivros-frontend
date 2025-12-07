@@ -46,7 +46,7 @@ export default function LivroDetalhes() {
         console.error("Erro ao ler usuário logado:", e);
       }
     }
-  }, []); // ← SEM DEPENDÊNCIAS!
+  }, []);
 
   // ✅ FIX 2: fetchData SEM currentUserId como dependência
   const fetchData = useCallback(async () => {
@@ -124,7 +124,6 @@ export default function LivroDetalhes() {
             if (ownersRes.ok) {
               const ownersData = await ownersRes.json();
 
-              // ✅ Pega currentUserId do localStorage dentro da função
               const storedUser = localStorage.getItem("user");
               const userId = storedUser ? JSON.parse(storedUser).id : null;
 
@@ -207,7 +206,7 @@ export default function LivroDetalhes() {
     } finally {
       setLoading(false);
     }
-  }, [id]); // ← APENAS 'id' como dependência!
+  }, [id]);
 
   useEffect(() => {
     fetchData();
@@ -265,14 +264,13 @@ export default function LivroDetalhes() {
   const closeModal = () => {
     setIsModalOpen(false);
     setTargetUser(null);
-    // Limpar campos
     setLivroOferecido(meusLivros[0]?.id || "");
     setDataHora("");
     setLocal("");
     setObservacao("");
   };
 
-  // ✅ FIX 3: Payload correto para o backend
+  // ✅ FUNÇÃO COMPLETA COM DADOS DOS LIVROS
   const handleSubmitProposta = async (event) => {
     event.preventDefault();
 
@@ -286,11 +284,26 @@ export default function LivroDetalhes() {
       const storedUser = localStorage.getItem("user");
       const currentUser = JSON.parse(storedUser);
 
-      // ✅ Payload correto conforme o backend espera
+      // Encontrar o livro oferecido nos meus livros
+      const livroOferecidoData = meusLivros.find(
+        (l) => l.id === parseInt(livroOferecido)
+      );
+
+      // Encontrar o livro desejado (o livro da página atual)
+      const livroDesejadoId = /^\d+$/.test(id) ? parseInt(id) : null;
+
+      // ✅ Payload COMPLETO com todos os dados
       const propostaPayload = {
-        proponenteId: currentUser.id, // ← ID do usuário logado
-        propostoId: targetUser.id, // ← ID do destinatário
-        status: "PENDENTE", // ← Status inicial
+        proponenteId: currentUser.id,
+        propostoId: targetUser.id,
+        status: "PENDENTE",
+        livroOferecidoId: livroOferecidoData?.id,
+        livroOferecidoTitulo: livroOferecidoData?.titulo,
+        livroDesejadoId: livroDesejadoId,
+        livroDesejadoTitulo: book.title,
+        dataTroca: dataHora,
+        local: local,
+        observacao: observacao || null,
       };
 
       console.log("📤 Enviando proposta:", propostaPayload);
@@ -329,7 +342,7 @@ export default function LivroDetalhes() {
   if (!book)
     return (
       <div className="loading-container">
-        <p>Livro não encontrado.</p>
+        <p>Livro não encontrado. </p>
       </div>
     );
 
@@ -479,6 +492,7 @@ export default function LivroDetalhes() {
               id="livro-oferecido"
               value={livroOferecido}
               onChange={(e) => setLivroOferecido(e.target.value)}
+              required
             >
               <option value="" disabled>
                 Selecione um livro
@@ -498,6 +512,7 @@ export default function LivroDetalhes() {
               id="data-hora"
               value={dataHora}
               onChange={(e) => setDataHora(e.target.value)}
+              required
             />
           </div>
 
@@ -509,6 +524,7 @@ export default function LivroDetalhes() {
               placeholder="Ex: Pátio da Biblioteca"
               value={local}
               onChange={(e) => setLocal(e.target.value)}
+              required
             />
           </div>
 
@@ -519,6 +535,7 @@ export default function LivroDetalhes() {
               rows="3"
               value={observacao}
               onChange={(e) => setObservacao(e.target.value)}
+              placeholder="Adicione informações adicionais sobre a troca..."
             ></textarea>
           </div>
 
