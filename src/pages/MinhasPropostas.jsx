@@ -37,6 +37,8 @@ export default function MinhasPropostas() {
         if (!response.ok) throw new Error("Erro ao buscar propostas");
 
         const backendData = await response.json();
+        
+        console.log("📥 Propostas do backend:", backendData);
 
         const processedPropostas = await Promise.all(
           backendData.map(async (p) => {
@@ -49,34 +51,39 @@ export default function MinhasPropostas() {
                 );
                 const data = await res.json();
                 return (
-                  data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail || null
+                  data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail || 
+                  "https://via.placeholder.com/80x120?text=Sem+Capa"
                 );
               } catch {
-                return null;
+                return "https://via.placeholder.com/80x120?text=Sem+Capa";
               }
             };
 
-            const imgOferecido = await fetchImage(p.livroOferecidoTitulo);
-            const imgDesejado = await fetchImage(p.livroDesejadoTitulo);
+            const imgOferecido = await fetchImage(p.livroOferecidoTitulo || "Livro");
+            const imgDesejado = await fetchImage(p.livroDesejadoTitulo || "Livro");
 
             return {
-              id: p.id,
+              id: p.id, // ✅ ID real do banco de dados
               livroOferecido: {
-                title: p.livroOferecidoTitulo,
+                title: p.livroOferecidoTitulo || "Título não disponível",
                 img: imgOferecido,
               },
-              livroDesejado: { title: p.livroDesejadoTitulo, img: imgDesejado },
-              usuario: p.nomeUsuarioRelacionado,
-              status: p.status,
-              dataTroca: p.dataTroca,
-              local: p.local,
+              livroDesejado: { 
+                title: p.livroDesejadoTitulo || "Título não disponível", 
+                img: imgDesejado 
+              },
+              usuario: p.nomeUsuarioRelacionado || "Usuário desconhecido",
+              status: p.status || "PENDENTE",
+              dataTroca: p.dataTroca || "Não informada",
+              local: p.local || "Não informado",
             };
           })
         );
 
+        console.log("✅ Propostas processadas:", processedPropostas);
         setPropostas(processedPropostas);
       } catch (error) {
-        console.error(error);
+        console.error("❌ Erro:", error);
         toast.error("Erro ao carregar propostas.");
       } finally {
         setIsLoading(false);
@@ -92,8 +99,11 @@ export default function MinhasPropostas() {
       const response = await fetch(
         `${API_BASE_URL}/propostas/${selectedProposal.id}/aceitar`,
         {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
+          method: "POST",
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
         }
       );
 
@@ -104,10 +114,12 @@ export default function MinhasPropostas() {
         );
         closeModal();
       } else {
-        toast.error("Erro ao aceitar proposta.");
+        const errorData = await response.json();
+        toast.error(errorData. message || "Erro ao aceitar proposta.");
       }
     } catch (error) {
-      toast.error("Erro de conexão.");
+      console.error("Erro:", error);
+      toast. error("Erro de conexão.");
     }
   };
 
@@ -115,23 +127,28 @@ export default function MinhasPropostas() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${API_BASE_URL}/propostas/${selectedProposal.id}/recusar`,
+        `${API_BASE_URL}/propostas/${selectedProposal.id}/rejeitar`,
         {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
+          method: "POST",
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
         }
       );
 
-      if (response.ok) {
+      if (response. ok) {
         toast.info("Proposta recusada.");
         setPropostas((prev) =>
           prev.filter((p) => p.id !== selectedProposal.id)
         );
         closeModal();
       } else {
-        toast.error("Erro ao recusar proposta.");
+        const errorData = await response.json();
+        toast.error(errorData.message || "Erro ao recusar proposta.");
       }
     } catch (error) {
+      console.error("Erro:", error);
       toast.error("Erro de conexão.");
     }
   };
@@ -167,7 +184,7 @@ export default function MinhasPropostas() {
             {propostas.length === 0 && <p>Nenhuma proposta encontrada.</p>}
             {propostas.map((proposta) => (
               <TradeCard
-                key={proposta.id}
+                key={proposta. id}
                 trade={{
                   livroRecebido:
                     activeTab === "recebidas"
@@ -175,7 +192,7 @@ export default function MinhasPropostas() {
                       : proposta.livroDesejado,
                   livroDado:
                     activeTab === "recebidas"
-                      ? proposta.livroDesejado
+                      ?  proposta.livroDesejado
                       : proposta.livroOferecido,
                   status: proposta.status,
                 }}
@@ -186,7 +203,7 @@ export default function MinhasPropostas() {
         )}
       </main>
 
-      <Modal isOpen={!!selectedProposal} onClose={closeModal}>
+      <Modal isOpen={!! selectedProposal} onClose={closeModal}>
         {selectedProposal && (
           <div className="proposta-modal-content">
             <h2 className="proposta-modal-title">Detalhes da Proposta</h2>
@@ -223,7 +240,7 @@ export default function MinhasPropostas() {
             </div>
 
             {activeTab === "recebidas" &&
-              selectedProposal.status === "Pendente" && (
+              selectedProposal.status === "PENDENTE" && (
                 <div className="proposta-modal-actions">
                   <button className="btn-recusar" onClick={handleDecline}>
                     Recusar Proposta

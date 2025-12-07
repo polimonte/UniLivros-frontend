@@ -35,7 +35,7 @@ export default function LivroDetalhes() {
   const [local, setLocal] = useState("");
   const [observacao, setObservacao] = useState("");
 
-  // Obter ID do usuário logado
+  // ✅ FIX 1: Obter ID do usuário logado UMA VEZ
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -46,8 +46,9 @@ export default function LivroDetalhes() {
         console.error("Erro ao ler usuário logado:", e);
       }
     }
-  }, []);
+  }, []); // ← SEM DEPENDÊNCIAS!
 
+  // ✅ FIX 2: fetchData SEM currentUserId como dependência
   const fetchData = useCallback(async () => {
     try {
       let googleBookData = null;
@@ -123,18 +124,17 @@ export default function LivroDetalhes() {
             if (ownersRes.ok) {
               const ownersData = await ownersRes.json();
 
-              // ===== ALTERAÇÃO: Ordenar para colocar o usuário atual primeiro =====
+              // ✅ Pega currentUserId do localStorage dentro da função
+              const storedUser = localStorage.getItem("user");
+              const userId = storedUser ? JSON.parse(storedUser).id : null;
+
               const sortedOwners = ownersData.sort((a, b) => {
-                // Se 'a' é o usuário atual, coloca ele primeiro (retorna -1)
-                if (Number(a.id) === Number(currentUserId)) return -1;
-                // Se 'b' é o usuário atual, coloca ele primeiro (retorna 1)
-                if (Number(b.id) === Number(currentUserId)) return 1;
-                // Caso contrário, mantém a ordem original
+                if (Number(a.id) === Number(userId)) return -1;
+                if (Number(b.id) === Number(userId)) return 1;
                 return 0;
               });
 
               setOwners(sortedOwners);
-              // ====================================================================
             } else {
               setOwners([]);
             }
@@ -153,15 +153,16 @@ export default function LivroDetalhes() {
             if (ownersRes.ok) {
               const ownersData = await ownersRes.json();
 
-              // ===== ALTERAÇÃO: Ordenar para colocar o usuário atual primeiro =====
+              const storedUser = localStorage.getItem("user");
+              const userId = storedUser ? JSON.parse(storedUser).id : null;
+
               const sortedOwners = ownersData.sort((a, b) => {
-                if (Number(a.id) === Number(currentUserId)) return -1;
-                if (Number(b.id) === Number(currentUserId)) return 1;
+                if (Number(a.id) === Number(userId)) return -1;
+                if (Number(b.id) === Number(userId)) return 1;
                 return 0;
               });
 
               setOwners(sortedOwners);
-              // ====================================================================
             } else {
               setOwners([]);
             }
@@ -206,7 +207,7 @@ export default function LivroDetalhes() {
     } finally {
       setLoading(false);
     }
-  }, [id, currentUserId]); // ← Adicionei currentUserId como dependência
+  }, [id]); // ← APENAS 'id' como dependência!
 
   useEffect(() => {
     fetchData();
@@ -264,10 +265,17 @@ export default function LivroDetalhes() {
   const closeModal = () => {
     setIsModalOpen(false);
     setTargetUser(null);
+    // Limpar campos
+    setLivroOferecido(meusLivros[0]?.id || "");
+    setDataHora("");
+    setLocal("");
+    setObservacao("");
   };
 
+  // ✅ FIX 3: Payload correto para o backend
   const handleSubmitProposta = async (event) => {
     event.preventDefault();
+
     if (!livroOferecido || !dataHora || !local) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
@@ -275,16 +283,17 @@ export default function LivroDetalhes() {
 
     try {
       const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+      const currentUser = JSON.parse(storedUser);
 
+      // ✅ Payload correto conforme o backend espera
       const propostaPayload = {
-        usuarioDestinoId: targetUser.id,
-        livroDesejadoId: /^\d+$/.test(id) ? id : null,
-        livroDesejadoGoogleId: /^\d+$/.test(id) ? null : id,
-        livroOferecidoId: livroOferecido,
-        dataHora: dataHora,
-        local: local,
-        observacoes: observacao,
+        proponenteId: currentUser.id, // ← ID do usuário logado
+        propostoId: targetUser.id, // ← ID do destinatário
+        status: "PENDENTE", // ← Status inicial
       };
+
+      console.log("📤 Enviando proposta:", propostaPayload);
 
       const response = await fetch(`${API_BASE_URL}/propostas`, {
         method: "POST",
@@ -296,12 +305,17 @@ export default function LivroDetalhes() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        console.log("✅ Proposta criada:", data);
         toast.success(`Proposta enviada para ${targetUser.nome}!`);
         closeModal();
       } else {
-        toast.error("Erro ao enviar proposta.");
+        const errorData = await response.json();
+        console.error("❌ Erro do servidor:", errorData);
+        toast.error(errorData.message || "Erro ao enviar proposta.");
       }
     } catch (error) {
+      console.error("❌ Erro de conexão:", error);
       toast.error("Erro de conexão.");
     }
   };
@@ -309,7 +323,7 @@ export default function LivroDetalhes() {
   if (loading)
     return (
       <div className="loading-container">
-        <p>Carregando detalhes...</p>
+        <p>Carregando detalhes... </p>
       </div>
     );
   if (!book)
@@ -324,7 +338,7 @@ export default function LivroDetalhes() {
     book.imageLinks?.large ||
     book.imageLinks?.medium ||
     book.imageLinks?.thumbnail ||
-    "https://via.placeholder.com/300x450? text=Sem+Capa";
+    "https://via.placeholder.com/300x450?text=Sem+Capa";
 
   const cleanDescription = book.description
     ? book.description.replace(/<[^>]+>/g, "")
@@ -363,7 +377,7 @@ export default function LivroDetalhes() {
                 {book.categories ? book.categories[0] : "Geral"}
               </span>
               <span>
-                <strong>Páginas:</strong> {book.pageCount || "?"}
+                <strong>Páginas:</strong> {book.pageCount || "? "}
               </span>
             </div>
           </section>
@@ -412,7 +426,7 @@ export default function LivroDetalhes() {
                   <p>
                     {/^\d+$/.test(id)
                       ? "Ninguém mais possui este livro na estante."
-                      : "Ninguém possui este livro na estante ainda.  Seja o primeiro!"}
+                      : "Ninguém possui este livro na estante ainda.  Seja o primeiro! "}
                   </p>
                 ) : (
                   owners.map((owner) => {
