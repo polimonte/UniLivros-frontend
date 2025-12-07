@@ -80,7 +80,7 @@ export default function Cadastro() {
     // Validação do email
     if (!validateEmail(email)) {
       toast.error(
-        "Email inválido.  Use apenas letras, números, ponto (.), hífen (-) e underscore (_)."
+        "Email inválido. Use apenas letras, números, ponto (.), hífen (-) e underscore (_)."
       );
       return;
     }
@@ -108,7 +108,7 @@ export default function Cadastro() {
     setIsLoading(true);
 
     // Monta o email completo
-    const emailCompleto = `${email}@souunit.com.br`;
+    const emailCompleto = `${email}@souunit.com. br`;
 
     try {
       console.log("Enviando dados:", {
@@ -136,11 +136,11 @@ export default function Cadastro() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Cadastro realizado com sucesso!");
-        navigate("/login", {
+        toast.success("Cadastro realizado!  Verifique seu email.");
+        navigate("/confirmar-cadastro", {
           state: {
-            message:
-              "Cadastro realizado com sucesso! Faça login para continuar.",
+            email: emailCompleto,
+            message: "Um código de verificação foi enviado para seu email.",
           },
         });
       } else {

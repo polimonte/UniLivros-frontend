@@ -9,11 +9,18 @@ import bookIcon from "../assets/book-icon.jpg";
 export default function ConfirmarCadastro() {
   const [codigo, setCodigo] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
-  const [timer, setTimer] = useState(300); // 5 minutos
+  const [timer, setTimer] = useState(3600); // 1 hora (60 minutos)
   const navigate = useNavigate();
   const location = useLocation();
 
   const email = location.state?.email;
+
+  useEffect(() => {
+    if (!email) {
+      toast.error("Email não informado.  Redirecionando.. .");
+      setTimeout(() => navigate("/cadastro"), 2000);
+    }
+  }, [email, navigate]);
 
   useEffect(() => {
     if (timer > 0) {
@@ -74,18 +81,20 @@ export default function ConfirmarCadastro() {
     }
 
     if (timer <= 0) {
-      toast.error("Código expirado. Solicite um novo código.");
+      toast.error("Código expirado.  Solicite um novo código.");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: fullCode }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/auth/verify-email? code=${fullCode}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       const data = await response.json();
 
@@ -93,7 +102,7 @@ export default function ConfirmarCadastro() {
         toast.success(data.message || "Cadastro confirmado com sucesso!");
         navigate("/login", {
           state: {
-            message: "Cadastro confirmado com sucesso! Faça seu login.",
+            message: "Cadastro confirmado com sucesso!  Faça seu login.",
             type: "success",
           },
         });
@@ -116,23 +125,27 @@ export default function ConfirmarCadastro() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/auth/resend-verification-code`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Novo código enviado!");
-        setTimer(300); // Reset timer
+        toast.success("Novo código enviado para seu email!");
+        setTimer(3600); // Reset timer para 1 hora
         setCodigo(["", "", "", "", "", ""]); // Clear inputs
         document.getElementById("code-input-0").focus();
       } else {
         toast.error(data.message || "Erro ao reenviar código.");
       }
     } catch (error) {
+      console.error("Erro:", error);
       toast.error("Erro de conexão.");
     } finally {
       setIsLoading(false);
@@ -156,7 +169,7 @@ export default function ConfirmarCadastro() {
 
           <div className="timer-display">
             ⏰ Tempo restante:{" "}
-            <span className={timer < 60 ? "timer-warning" : ""}>
+            <span className={timer < 300 ? "timer-warning" : ""}>
               {formatTime(timer)}
             </span>
           </div>
@@ -200,7 +213,7 @@ export default function ConfirmarCadastro() {
 
           <div className="form-footer">
             <p className="form-help-text">
-              Não recebeu o código?
+              Não recebeu o código?{" "}
               <button
                 type="button"
                 className="text-link"
@@ -220,9 +233,9 @@ export default function ConfirmarCadastro() {
             <button
               type="button"
               className="back-btn"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/cadastro")}
             >
-              ← Voltar para Login
+              ← Voltar para Cadastro
             </button>
           </div>
         </section>
