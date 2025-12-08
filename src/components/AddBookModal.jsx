@@ -95,17 +95,15 @@ export default function AddBookModal({
 
       // ===== ALTERAÇÃO: Adicionando googleId ao payload =====
       const payload = {
-        titulo: selectedBook.titulo,
-        autor: selectedBook.autor,
-        editora: selectedBook.editora || "Editora não informada",
-        genero: selectedBook.genero || "Geral",
-        isbn: selectedBook.isbn || "",
-        ano: parseInt(selectedBook.ano) || 2000,
-        descricao: selectedBook.descricao
-          ? selectedBook.descricao.substring(0, 499)
-          : "",
+        titulo: selectedBook.titulo.trim(),
+        autor: selectedBook.autor.trim(),
+        editora: selectedBook.editora.trim(),
+        genero: selectedBook.genero.trim(),
+        isbn: selectedBook.isbn?.trim() || "",
+        ano: selectedBook.ano.trim(),
+        descricao: selectedBook.descricao?.substring(0, 499) || "",
         condicao: condicao,
-        googleId: selectedBook.googleId || null, // ✅ ADICIONADO
+        googleId: selectedBook.googleId || null,
       };
       // ======================================================
 

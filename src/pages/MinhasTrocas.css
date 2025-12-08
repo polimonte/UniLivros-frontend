@@ -1,121 +1,354 @@
 .trocas-main {
-  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
 
 .trocas-title {
-  color: #4B2E2E;
-  font-size: 1.8rem;
+  font-size: 2rem;
+  color: #4b2e2e;
+  margin-bottom: 2rem;
+  text-align: center;
   font-weight: 700;
-  margin-top: 0;
-  margin-bottom: 5px;
 }
 
-.trocas-subtitle {
-  color: #555;
+.btn-validar-qr-top {
+  display: block;
+  margin: 0 auto 2rem;
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.btn-validar-qr-top:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+}
+
+.loading-text {
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+  margin: 3rem 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #999;
+}
+
+.empty-state p {
   font-size: 1.2rem;
-  font-weight: 500;
-  margin-top: 0;
-  margin-bottom: 25px;
+  margin: 0.5rem 0;
+}
+
+.empty-subtitle {
+  font-size: 0.95rem;
+  color: #bbb;
 }
 
 .trocas-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.troca-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.troca-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #e3f2fd;
+}
+
+.troca-header {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.trade-modal-title {
-  font-size: 1.5rem;
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #4B2E2E;
-  text-align: center;
+.troca-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #4b2e2e;
+  font-weight: 600;
 }
 
-.trade-modal-section {
-  margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.3);
-  padding: 15px;
-  border-radius: 8px;
+.troca-status {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.trade-modal-subtitle {
-  font-size: 1.1rem;
-  margin-top: 0;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #E0CBB3;
-  padding-bottom: 5px;
-}
-
-.trade-modal-section p {
-  margin: 5px 0;
+.troca-info p {
+  margin: 0.75rem 0;
+  color: #555;
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.trade-modal-close-btn {
-  background-color: #F9B233;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 25px;
-  font-weight: 700;
-  font-family: 'Montserrat', sans-serif;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s;
-  display: block;
-  width: 100%;
-  margin-top: 20px;
+.troca-info strong {
+  color: #333;
+  font-weight: 600;
 }
 
-.trade-modal-close-btn:hover {
-  background-color: #e6a91f;
+/* Modais */
+.troca-modal-content,
+.qrcode-modal-content,
+.validate-modal-content {
+  padding: 2rem;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-.empty-shelf-container {
+.troca-modal-content h2,
+.qrcode-modal-content h2,
+.validate-modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #4b2e2e;
   text-align: center;
-  padding: 50px 20px;
-  background-color: rgba(255, 255, 255, 0.4);
-  border-radius: 20px;
-  margin-top: 20px;
-}
-
-.empty-shelf-text {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #4B2E2E;
-  margin-bottom: 10px;
 }
 
-.empty-shelf-subtext {
-  font-size: 1.1rem;
-  color: #666;
-  margin-bottom: 30px;
-}
-
-.btn-add-first-book {
-  background-color: #F9B233;
-  color: #fff;
-  border: none;
+.troca-modal-section {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  background: #f9f9f9;
   border-radius: 12px;
-  padding: 15px 30px;
-  font-size: 1.1rem;
-  font-weight: 700;
+  border-left: 4px solid #2196f3;
+}
+
+.troca-modal-section p {
+  margin: 0.75rem 0;
+  font-size: 0.95rem;
+}
+
+.troca-modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn-cancelar-troca,
+.btn-gerar-qrcode,
+.btn-ver-qrcode {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
+  color: white;
 }
 
-.btn-add-first-book:hover {
-  transform: scale(1.05);
-  background-color: #e6a91f;
+.btn-cancelar-troca {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
 }
 
-.error-msg {
-  color: #d32f2f;
-  background: #ffcdd2;
-  padding: 10px;
+.btn-gerar-qrcode {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.btn-ver-qrcode {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+}
+
+.btn-cancelar-troca:hover,
+.btn-gerar-qrcode:hover,
+.btn-ver-qrcode:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* QR Code */
+.qrcode-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.qrcode-image {
+  max-width: 256px;
+  width: 100%;
+  height: auto;
   border-radius: 8px;
-  display: inline-block;
+}
+
+.qrcode-info {
+  text-align: center;
+  color: #666;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.qrcode-text-container {
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.qrcode-label {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.qrcode-text {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  word-break: break-all;
+  color: #333;
+  background: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  border: 1px solid #e0e0e0;
+}
+
+.btn-copy-code {
+  width: 100%;
+  padding: 0.75rem;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-copy-code:hover {
+  background: #1976d2;
+}
+
+/* Validação */
+.validate-description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.qr-input {
+  width: 100%;
+  padding: 0.875rem;
+  margin: 1rem 0;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Courier New', monospace;
+  transition: border-color 0.3s ease;
+}
+
+.qr-input:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.validate-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-cancelar,
+.btn-validar {
+  flex: 1;
+  padding: 0.875rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-cancelar {
+  background: #999;
+}
+
+.btn-validar {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.btn-cancelar:hover,
+.btn-validar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.troca-modal-close-btn {
+  width: 100%;
+  padding: 0.875rem;
+  margin-top: 1.5rem;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.troca-modal-close-btn:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .trocas-list {
+    grid-template-columns: 1fr;
+  }
+
+  .troca-modal-actions,
+  .validate-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancelar-troca,
+  .btn-gerar-qrcode,
+  .btn-ver-qrcode {
+    width: 100%;
+  }
 }
