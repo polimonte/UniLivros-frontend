@@ -108,7 +108,7 @@ export default function Cadastro() {
     setIsLoading(true);
 
     // Monta o email completo
-    const emailCompleto = `${email}@souunit.com. br`;
+    const emailCompleto = `${email}@souunit.com.br`;
 
     try {
       console.log("Enviando dados:", {
