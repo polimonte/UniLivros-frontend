@@ -17,7 +17,7 @@ export default function ConfirmarCadastro() {
 
   useEffect(() => {
     if (!email) {
-      toast.error("Email não informado.  Redirecionando.. .");
+      toast.error("Email não informado. Redirecionando...");
       setTimeout(() => navigate("/cadastro"), 2000);
     }
   }, [email, navigate]);
@@ -75,13 +75,13 @@ export default function ConfirmarCadastro() {
     event.preventDefault();
 
     const fullCode = codigo.join("");
-    if (!fullCode || fullCode.length !== 6) {
+    if (!fullCode || fullCode.length < 6) {
       toast.error("Por favor, insira o código completo de 6 dígitos.");
       return;
     }
 
     if (timer <= 0) {
-      toast.error("Código expirado.  Solicite um novo código.");
+      toast.error("Código expirado. Solicite um novo código.");
       return;
     }
 
@@ -89,7 +89,7 @@ export default function ConfirmarCadastro() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/auth/verify-email? code=${fullCode}`,
+        `${API_BASE_URL}/auth/verify-email?code=${fullCode}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
