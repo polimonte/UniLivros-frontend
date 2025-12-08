@@ -62,8 +62,25 @@ export default function MinhasPropostas() {
             const imgOferecido = await fetchImage(p.livroOferecidoTitulo || "Livro");
             const imgDesejado = await fetchImage(p.livroDesejadoTitulo || "Livro");
 
+            // ✅ Formatar data se existir
+            let dataFormatada = "Não informada";
+            if (p.dataHoraSugerida) {
+              try {
+                const data = new Date(p.dataHoraSugerida);
+                dataFormatada = data.toLocaleString('pt-BR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+              } catch (e) {
+                console.error("Erro ao formatar data:", e);
+              }
+            }
+
             return {
-              id: p.id, // ✅ ID real do banco de dados
+              id: p.id,
               livroOferecido: {
                 title: p.livroOferecidoTitulo || "Título não disponível",
                 img: imgOferecido,
@@ -74,8 +91,9 @@ export default function MinhasPropostas() {
               },
               usuario: p.nomeUsuarioRelacionado || "Usuário desconhecido",
               status: p.status || "PENDENTE",
-              dataTroca: p.dataTroca || "Não informada",
-              local: p.local || "Não informado",
+              dataTroca: dataFormatada,  // ✅ Data formatada
+              local: p.localSugerido || "Não informado",  // ✅ Campo correto
+              observacao: p.observacoes || null  // ✅ Campo correto
             };
           })
         );
@@ -115,11 +133,11 @@ export default function MinhasPropostas() {
         closeModal();
       } else {
         const errorData = await response.json();
-        toast.error(errorData. message || "Erro ao aceitar proposta.");
+        toast.error(errorData.message || "Erro ao aceitar proposta.");
       }
     } catch (error) {
       console.error("Erro:", error);
-      toast. error("Erro de conexão.");
+      toast.error("Erro de conexão.");
     }
   };
 
@@ -137,7 +155,7 @@ export default function MinhasPropostas() {
         }
       );
 
-      if (response. ok) {
+      if (response.ok) {
         toast.info("Proposta recusada.");
         setPropostas((prev) =>
           prev.filter((p) => p.id !== selectedProposal.id)
@@ -184,7 +202,7 @@ export default function MinhasPropostas() {
             {propostas.length === 0 && <p>Nenhuma proposta encontrada.</p>}
             {propostas.map((proposta) => (
               <TradeCard
-                key={proposta. id}
+                key={proposta.id}
                 trade={{
                   livroRecebido:
                     activeTab === "recebidas"
@@ -203,7 +221,7 @@ export default function MinhasPropostas() {
         )}
       </main>
 
-      <Modal isOpen={!! selectedProposal} onClose={closeModal}>
+      <Modal isOpen={!!selectedProposal} onClose={closeModal}>
         {selectedProposal && (
           <div className="proposta-modal-content">
             <h2 className="proposta-modal-title">Detalhes da Proposta</h2>
@@ -237,6 +255,11 @@ export default function MinhasPropostas() {
               <p>
                 <strong>Status:</strong> {selectedProposal.status}
               </p>
+              {selectedProposal.observacao && (
+                <p>
+                  <strong>Observação:</strong> {selectedProposal.observacao}
+                </p>
+              )}
             </div>
 
             {activeTab === "recebidas" &&

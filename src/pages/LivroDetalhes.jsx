@@ -35,7 +35,6 @@ export default function LivroDetalhes() {
   const [local, setLocal] = useState("");
   const [observacao, setObservacao] = useState("");
 
-  // ✅ FIX 1: Obter ID do usuário logado UMA VEZ
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -48,7 +47,6 @@ export default function LivroDetalhes() {
     }
   }, []);
 
-  // ✅ FIX 2: fetchData SEM currentUserId como dependência
   const fetchData = useCallback(async () => {
     try {
       let googleBookData = null;
@@ -270,9 +268,18 @@ export default function LivroDetalhes() {
     setObservacao("");
   };
 
-  // ✅ FUNÇÃO COMPLETA COM DADOS DOS LIVROS
+  // ✅ FUNÇÃO COM LOGS DETALHADOS
   const handleSubmitProposta = async (event) => {
     event.preventDefault();
+
+    console.log("=== INÍCIO handleSubmitProposta ===");
+    console.log("🔍 ID da URL (id):", id);
+    console.log("🔍 Tipo de id:", typeof id);
+    console.log("🔍 Teste /^\\d+$/.test(id):", /^\d+$/.test(id));
+    console.log("🔍 Book object:", book);
+    console.log("🔍 Target user:", targetUser);
+    console.log("🔍 Meus livros:", meusLivros);
+    console.log("🔍 Owners:", owners);
 
     if (!livroOferecido || !dataHora || !local) {
       toast.error("Preencha todos os campos obrigatórios.");
@@ -288,25 +295,126 @@ export default function LivroDetalhes() {
       const livroOferecidoData = meusLivros.find(
         (l) => l.id === parseInt(livroOferecido)
       );
+      console.log("📕 Livro oferecido encontrado:", livroOferecidoData);
 
-      // Encontrar o livro desejado (o livro da página atual)
-      const livroDesejadoId = /^\d+$/.test(id) ? parseInt(id) : null;
+      // ID do livro desejado (o livro da página atual)
+      let livroDesejadoId = null;
 
-      // ✅ Payload COMPLETO com todos os dados
+      const isBackendId = /^\d+$/.test(id);
+      console.log("🔍 É Backend ID?", isBackendId);
+
+      if (isBackendId) {
+        // É um ID do backend
+        livroDesejadoId = parseInt(id);
+        console.log("✅ Usando ID do backend diretamente:", livroDesejadoId);
+      } else {
+        console.log("⚠️ É Google Books ID, tentando buscar na estante...");
+        console.log("📖 Título do livro atual:", book?.title);
+
+        // Buscar na lista de owners (que já temos carregada)
+        // Verificar se o targetUser está na lista de owners
+        const targetUserOwnsBook = owners.find(
+          (owner) => owner.id === targetUser.id
+        );
+
+        if (targetUserOwnsBook) {
+          console.log("✅ Target user está na lista de owners!");
+
+          // Se chegamos aqui, significa que o livro TEM que estar no backend
+          // Vamos buscar todos os livros e encontrar pelo título
+          try {
+            const response = await fetch(`${API_BASE_URL}/livros`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            if (response.ok) {
+              const todosLivros = await response.json();
+              console.log("📚 Total de livros no backend:", todosLivros.length);
+
+              const livroEncontrado = todosLivros.find(
+                (l) => l.titulo?.toLowerCase() === book.title?.toLowerCase()
+              );
+
+              console.log("🔍 Livro encontrado pelo título:", livroEncontrado);
+
+              if (livroEncontrado) {
+                livroDesejadoId = livroEncontrado.id;
+                console.log("✅ ID do livro encontrado:", livroDesejadoId);
+              } else {
+                console.log("❌ Livro não encontrado no backend");
+                // Tentar buscar pelos livros do usuário específico
+                const userBooksResponse = await fetch(
+                  `${API_BASE_URL}/usuarios/${targetUser.id}/livros`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+
+                if (userBooksResponse.ok) {
+                  const livrosDoUsuario = await userBooksResponse.json();
+                  console.log("📚 Livros do usuário:", livrosDoUsuario);
+
+                  const livroDoUsuario = livrosDoUsuario.find(
+                    (l) => l.titulo?.toLowerCase() === book.title?.toLowerCase()
+                  );
+
+                  if (livroDoUsuario) {
+                    livroDesejadoId = livroDoUsuario.id;
+                    console.log(
+                      "✅ Livro encontrado na estante do usuário:",
+                      livroDesejadoId
+                    );
+                  }
+                }
+              }
+            }
+          } catch (error) {
+            console.error("❌ Erro ao buscar livros:", error);
+          }
+        } else {
+          console.log("❌ Target user NÃO está na lista de owners");
+          console.log("📋 Lista de owners:", owners);
+        }
+      }
+
+      console.log("🎯 livroDesejadoId final:", livroDesejadoId);
+
+      // Validações
+      if (!livroOferecidoData) {
+        console.log("❌ Livro oferecido não encontrado");
+        toast.error("Livro oferecido não encontrado.");
+        return;
+      }
+
+      if (!livroDesejadoId) {
+        console.log("❌ livroDesejadoId é null/undefined");
+        toast.error(
+          "Não é possível criar proposta para livros do Google Books. Adicione o livro à sua estante primeiro."
+        );
+        return;
+      }
+
+      // Converter data para LocalDateTime (ISO format)
+      const dataHoraISO = new Date(dataHora).toISOString().slice(0, 19);
+      console.log("📅 Data convertida:", dataHoraISO);
+
+      // ✅ Payload COMPLETO
       const propostaPayload = {
         proponenteId: currentUser.id,
         propostoId: targetUser.id,
         status: "PENDENTE",
-        livroOferecidoId: livroOferecidoData?.id,
-        livroOferecidoTitulo: livroOferecidoData?.titulo,
+        livroOferecidoId: livroOferecidoData.id,
         livroDesejadoId: livroDesejadoId,
-        livroDesejadoTitulo: book.title,
-        dataTroca: dataHora,
-        local: local,
-        observacao: observacao || null,
+        dataHoraSugerida: dataHoraISO,
+        localSugerido: local,
+        observacoes: observacao || null,
       };
 
-      console.log("📤 Enviando proposta:", propostaPayload);
+      console.log("📤 Payload completo:", propostaPayload);
 
       const response = await fetch(`${API_BASE_URL}/propostas`, {
         method: "POST",
@@ -317,9 +425,11 @@ export default function LivroDetalhes() {
         body: JSON.stringify(propostaPayload),
       });
 
+      console.log("📡 Response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
-        console.log("✅ Proposta criada:", data);
+        console.log("✅ Proposta criada com sucesso:", data);
         toast.success(`Proposta enviada para ${targetUser.nome}!`);
         closeModal();
       } else {
@@ -331,18 +441,20 @@ export default function LivroDetalhes() {
       console.error("❌ Erro de conexão:", error);
       toast.error("Erro de conexão.");
     }
+
+    console.log("=== FIM handleSubmitProposta ===");
   };
 
   if (loading)
     return (
       <div className="loading-container">
-        <p>Carregando detalhes... </p>
+        <p>Carregando detalhes...</p>
       </div>
     );
   if (!book)
     return (
       <div className="loading-container">
-        <p>Livro não encontrado. </p>
+        <p>Livro não encontrado.</p>
       </div>
     );
 
@@ -355,7 +467,7 @@ export default function LivroDetalhes() {
 
   const cleanDescription = book.description
     ? book.description.replace(/<[^>]+>/g, "")
-    : "Sem sinopse disponível. ";
+    : "Sem sinopse disponível.";
 
   const currentBookData = {
     googleId: /^\d+$/.test(id) ? null : id,
@@ -439,7 +551,7 @@ export default function LivroDetalhes() {
                   <p>
                     {/^\d+$/.test(id)
                       ? "Ninguém mais possui este livro na estante."
-                      : "Ninguém possui este livro na estante ainda.  Seja o primeiro! "}
+                      : "Ninguém possui este livro na estante ainda. Seja o primeiro! "}
                   </p>
                 ) : (
                   owners.map((owner) => {

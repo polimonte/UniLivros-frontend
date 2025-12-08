@@ -56,15 +56,19 @@
   font-weight: 700;
   padding: 6px 12px;
   border-radius: 20px;
-  color: #fff;
+  color: #ffffff;
 }
 
-.trade-status.concluída {
+.trade-status.concluída, .trade-status.aceita {
   background-color: #8BC34A;
 }
 
 .trade-status.pendente {
   background-color: #F9B233;
+}
+
+.trade-status.rejeitada {
+  background-color: #ff0000;
 }
 
 .trade-status.cancelada {
