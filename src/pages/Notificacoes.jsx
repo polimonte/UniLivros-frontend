@@ -70,7 +70,7 @@ export default function Notificacoes() {
     try {
       const token = localStorage.getItem("token");
 
-      await fetch(`${API_BASE_URL}/notificacoes/marcar-todas-lidas`, {
+      await fetch(`${API_BASE_URL}/notificacoes/marcar-como-lidas`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

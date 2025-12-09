@@ -59,6 +59,7 @@
   font-size: 1.1rem;
   transition: background-color 0.2s;
   border-radius: 12px;
+  position: relative;
 }
 
 .sidebar-link.active,
@@ -102,4 +103,28 @@
 .sidebar-logout-btn:hover {
   background-color: #4B2E2E;
   color: #fff;
+}
+
+
+/* Container para posicionar o badge */
+.notification-wrapper {
+  position: relative;
+  /* Essencial para que o badge seja posicionado em relação a este div */
+  display: flex;
+  /* Para manter o layout do botão dentro */
+  align-items: center;
+}
+
+/* Regras CSS para o Badge de Notificação */
+.notification-badge {
+  /* Tamanho da bolinha */
+  width: 10px;
+  height: 10px;
+  /* Cor de destaque para indicar novo */
+  background-color: #dc3545;
+  /* Vermelho ou uma cor chamativa */
+  border-radius: 50%;
+  /* Posicionamento para ficar no canto */
+  margin-left: auto;
+  flex-shrink: 0;
 }

@@ -2,9 +2,43 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 
+import { API_BASE_URL } from "../services/api";
+
 export default function Sidebar({ isOpen, onClose, onAddBookClick }) {
   const navigate = useNavigate();
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
   const [userId, setUserId] = useState(null);
+
+  const fetchNotificationStatus = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return; // Não tenta buscar se não houver token
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/notificacoes/nao-lidas/status`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        // A resposta do backend é: { "hasUnread": true/false }
+        setHasUnreadNotifications(data.hasUnread);
+      } else if (response.status === 401) {
+        // Tratar caso de token expirado, se necessário
+        console.warn("Token expirado ao verificar notificações.");
+      } else {
+        console.error("Falha ao buscar status de notificações.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição de notificação:", error);
+    }
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -17,6 +51,14 @@ export default function Sidebar({ isOpen, onClose, onAddBookClick }) {
       }
     }
   }, []);
+
+  // 1. Chama a função de verificação quando o componente é montado.
+  // 2. Chama a função sempre que o 'isOpen' for alterado para 'true' (o sidebar é aberto)
+  useEffect(() => {
+    if (isOpen) {
+      fetchNotificationStatus();
+    }
+  }, [isOpen]);
 
   const handleLogout = () => {
     onClose();
@@ -42,20 +84,28 @@ export default function Sidebar({ isOpen, onClose, onAddBookClick }) {
           </button>
         </div>
         <nav className="sidebar-nav">
-          <Link to="/dashboard" className="sidebar-link active" onClick={onClose}>
+          <Link
+            to="/dashboard"
+            className="sidebar-link active"
+            onClick={onClose}
+          >
             <span className="sidebar-link-icon">&#8962;</span>
             <span className="sidebar-link-text">Página Inicial</span>
           </Link>
           <Link to="/notificacoes" className="sidebar-link" onClick={onClose}>
             <span className="sidebar-link-icon">&#128276;</span>
             <span className="sidebar-link-text">Notificações</span>
+            {/* ✅ Badge de Notificação Condicional */}
+            {hasUnreadNotifications && (
+              <div className="notification-badge"></div>
+            )}
           </Link>
-          
+
           <Link to="#" className="sidebar-link" onClick={handleAddClick}>
             <span className="sidebar-link-icon add-icon">+</span>
             <span className="sidebar-link-text">Adicionar Livro</span>
           </Link>
-          
+
           <Link to="/minhas-trocas" className="sidebar-link" onClick={onClose}>
             <span className="sidebar-link-icon">&#128213;</span>
             <span className="sidebar-link-text">Minhas trocas</span>

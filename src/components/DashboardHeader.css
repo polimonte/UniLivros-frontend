@@ -101,3 +101,40 @@
   font-weight: 500;
   font-size: 0.95rem;
 }
+
+/* Container para posicionar o badge */
+.notification-wrapper {
+  position: relative;
+  /* Essencial para que o badge seja posicionado em relação a este div */
+  display: flex;
+  /* Para manter o layout do botão dentro */
+  align-items: center;
+}
+
+/* O Badge (a bolinha vermelha) */
+.notification-badge {
+  position: absolute;
+  top: 0px;
+  /* Ajuste para a posição vertical desejada */
+  right: 0px;
+  /* Ajuste para a posição horizontal desejada */
+  width: 10px;
+  /* Tamanho da bolinha */
+  height: 10px;
+  /* Tamanho da bolinha */
+  background-color: #dc3545;
+  /* Cor vermelha para destaque */
+  border-radius: 50%;
+  /* Torna-o redondo */
+  border: 2px solid #f6e3c7;
+  /* Borda da cor do header */
+  z-index: 10;
+  /* Garante que fique acima do botão */
+}
+
+/* Garante que o botão tenha um padding para a bolinha não ficar colada */
+.dash-icon-btn.profile-btn {
+  /* Pode precisar ajustar o padding/margin do seu botão se o badge 
+     estiver sobrepondo o ícone */
+  /* padding: 10px; */
+}
