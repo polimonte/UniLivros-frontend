@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import BookCard from "../components/BookCard";
-import "./MinhasTrocas.css"; // Reutilizando o CSS
+import "./MinhasTrocas.css";
 
 export default function ResultadoPesquisa() {
   const [searchParams] = useSearchParams();

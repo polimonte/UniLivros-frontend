@@ -23,7 +23,6 @@ export default function Cadastro() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Validação de senha
   const validatePassword = (password) => {
     if (password.length < 6) return "A senha deve ter pelo menos 6 caracteres";
     if (!/[A-Z]/.test(password)) return "Inclua pelo menos uma letra maiúscula";
@@ -31,7 +30,6 @@ export default function Cadastro() {
     return null;
   };
 
-  // Cálculo da força da senha
   const calculatePasswordStrength = (password) => {
     let strength = 0;
     if (password.length >= 6) strength += 25;
@@ -53,9 +51,7 @@ export default function Cadastro() {
     return "#00C851";
   };
 
-  // Validação do email
   const validateEmail = (email) => {
-    // Permite apenas letras, números, ponto, hífen e underscore
     const emailRegex = /^[a-zA-Z0-9._-]+$/;
     return emailRegex.test(email);
   };
@@ -63,7 +59,6 @@ export default function Cadastro() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Validação de campos obrigatórios
     if (
       !name ||
       !email ||
@@ -77,7 +72,6 @@ export default function Cadastro() {
       return;
     }
 
-    // Validação do email
     if (!validateEmail(email)) {
       toast.error(
         "Email inválido. Use apenas letras, números, ponto (.), hífen (-) e underscore (_)."
@@ -85,20 +79,17 @@ export default function Cadastro() {
       return;
     }
 
-    // Validação da senha
     const passwordError = validatePassword(password);
     if (passwordError) {
       toast.error(passwordError);
       return;
     }
 
-    // Confirmação de senha
     if (password !== confirmPassword) {
       toast.error("As senhas não conferem!");
       return;
     }
 
-    // Validação do semestre
     const semestreNumero = parseInt(semestre, 10);
     if (isNaN(semestreNumero) || semestreNumero < 1 || semestreNumero > 12) {
       toast.error("Semestre deve ser um número entre 1 e 12");
@@ -107,7 +98,6 @@ export default function Cadastro() {
 
     setIsLoading(true);
 
-    // Monta o email completo
     const emailCompleto = `${email}@souunit.com.br`;
 
     try {
@@ -146,7 +136,6 @@ export default function Cadastro() {
       } else {
         console.error("Erro retornado pelo Backend:", data);
 
-        // Tratamento de erros de validação
         if (data.errors && typeof data.errors === "object") {
           const errorMessages = Object.entries(data.errors)
             .map(([field, message]) => `${field}: ${message}`)

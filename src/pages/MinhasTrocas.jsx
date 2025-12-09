@@ -28,9 +28,7 @@ export default function MinhasTrocas() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("📦 Trocas recebidas:", data);
 
-        // Processar trocas com imagens do Google Books
         const trocasProcessadas = await Promise.all(
           data.map(async (troca) => {
             const fetchImage = async (titulo) => {
@@ -90,7 +88,6 @@ export default function MinhasTrocas() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("📱 QR Code gerado:", data);
         setQrCodeImage(data.qrCodeBase64);
         setSelectedTroca({ ...selectedTroca, qrCode: data.qrCode });
         setShowQRModal(true);

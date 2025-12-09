@@ -37,8 +37,6 @@ export default function MinhasPropostas() {
         if (!response.ok) throw new Error("Erro ao buscar propostas");
 
         const backendData = await response.json();
-        
-        console.log("📥 Propostas do backend:", backendData);
 
         const processedPropostas = await Promise.all(
           backendData.map(async (p) => {
@@ -51,7 +49,7 @@ export default function MinhasPropostas() {
                 );
                 const data = await res.json();
                 return (
-                  data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail || 
+                  data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail ||
                   "https://via.placeholder.com/80x120?text=Sem+Capa"
                 );
               } catch {
@@ -59,20 +57,23 @@ export default function MinhasPropostas() {
               }
             };
 
-            const imgOferecido = await fetchImage(p.livroOferecidoTitulo || "Livro");
-            const imgDesejado = await fetchImage(p.livroDesejadoTitulo || "Livro");
+            const imgOferecido = await fetchImage(
+              p.livroOferecidoTitulo || "Livro"
+            );
+            const imgDesejado = await fetchImage(
+              p.livroDesejadoTitulo || "Livro"
+            );
 
-            // ✅ Formatar data se existir
             let dataFormatada = "Não informada";
             if (p.dataHoraSugerida) {
               try {
                 const data = new Date(p.dataHoraSugerida);
-                dataFormatada = data.toLocaleString('pt-BR', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
+                dataFormatada = data.toLocaleString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 });
               } catch (e) {
                 console.error("Erro ao formatar data:", e);
@@ -85,20 +86,19 @@ export default function MinhasPropostas() {
                 title: p.livroOferecidoTitulo || "Título não disponível",
                 img: imgOferecido,
               },
-              livroDesejado: { 
-                title: p.livroDesejadoTitulo || "Título não disponível", 
-                img: imgDesejado 
+              livroDesejado: {
+                title: p.livroDesejadoTitulo || "Título não disponível",
+                img: imgDesejado,
               },
               usuario: p.nomeUsuarioRelacionado || "Usuário desconhecido",
               status: p.status || "PENDENTE",
-              dataTroca: dataFormatada,  // ✅ Data formatada
-              local: p.localSugerido || "Não informado",  // ✅ Campo correto
-              observacao: p.observacoes || null  // ✅ Campo correto
+              dataTroca: dataFormatada,
+              local: p.localSugerido || "Não informado",
+              observacao: p.observacoes || null,
             };
           })
         );
 
-        console.log("✅ Propostas processadas:", processedPropostas);
         setPropostas(processedPropostas);
       } catch (error) {
         console.error("❌ Erro:", error);
@@ -118,9 +118,9 @@ export default function MinhasPropostas() {
         `${API_BASE_URL}/propostas/${selectedProposal.id}/aceitar`,
         {
           method: "POST",
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
         }
       );
@@ -148,9 +148,9 @@ export default function MinhasPropostas() {
         `${API_BASE_URL}/propostas/${selectedProposal.id}/rejeitar`,
         {
           method: "POST",
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
         }
       );
@@ -210,7 +210,7 @@ export default function MinhasPropostas() {
                       : proposta.livroDesejado,
                   livroDado:
                     activeTab === "recebidas"
-                      ?  proposta.livroDesejado
+                      ? proposta.livroDesejado
                       : proposta.livroOferecido,
                   status: proposta.status,
                 }}

@@ -19,10 +19,8 @@ export default function AddBookModal({
   const [condicao, setCondicao] = useState("USADO_BOM");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- NOVOS ESTADOS PARA A IA ---
   const [nivelLeituraIA, setNivelLeituraIA] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  // -------------------------------
 
   useEffect(() => {
     if (isOpen) {
@@ -36,7 +34,7 @@ export default function AddBookModal({
         setSearchQuery("");
       }
       setCondicao("USADO_BOM");
-      setNivelLeituraIA(null); // Reseta a IA ao abrir
+      setNivelLeituraIA(null);
     }
   }, [isOpen, initialBook]);
 
@@ -85,15 +83,13 @@ export default function AddBookModal({
 
   const handleSelectBook = (book) => {
     setSelectedBook(book);
-    setNivelLeituraIA(null); // Limpa análise anterior se trocar de livro
+    setNivelLeituraIA(null);
     setStep("confirm");
   };
 
-  // --- NOVA FUNÇÃO DE ANÁLISE COM IA ---
   const handleAnalyzeWithAI = async () => {
     if (!selectedBook) return;
 
-    // Validação mínima para a IA funcionar bem
     if (!selectedBook.genero && !selectedBook.descricao) {
       toast.warn("O livro precisa ter Gênero ou Descrição para a IA analisar.");
       return;
@@ -105,7 +101,6 @@ export default function AddBookModal({
     try {
       const token = localStorage.getItem("token");
 
-      // Monta objeto compatível com LivroDTO do backend
       const livroDTO = {
         titulo: selectedBook.titulo,
         autor: selectedBook.autor,
@@ -138,7 +133,6 @@ export default function AddBookModal({
       setIsAnalyzing(false);
     }
   };
-  // -------------------------------------
 
   const handleSubmit = async () => {
     if (!selectedBook) return;
@@ -161,11 +155,7 @@ export default function AddBookModal({
         descricao: selectedBook.descricao?.substring(0, 499) || "",
         condicao: condicao,
         googleId: selectedBook.googleId || null,
-        // Opcional: Se quiser salvar o nível no banco, adicione aqui:
-        // nivelLeitura: nivelLeituraIA
       };
-
-      console.log("Enviando Payload:", payload);
 
       const response = await fetch(`${API_BASE_URL}/livros`, {
         method: "POST",

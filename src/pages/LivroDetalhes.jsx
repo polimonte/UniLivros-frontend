@@ -268,18 +268,8 @@ export default function LivroDetalhes() {
     setObservacao("");
   };
 
-  // ✅ FUNÇÃO COM LOGS DETALHADOS
   const handleSubmitProposta = async (event) => {
     event.preventDefault();
-
-    console.log("=== INÍCIO handleSubmitProposta ===");
-    console.log("🔍 ID da URL (id):", id);
-    console.log("🔍 Tipo de id:", typeof id);
-    console.log("🔍 Teste /^\\d+$/.test(id):", /^\d+$/.test(id));
-    console.log("🔍 Book object:", book);
-    console.log("🔍 Target user:", targetUser);
-    console.log("🔍 Meus livros:", meusLivros);
-    console.log("🔍 Owners:", owners);
 
     if (!livroOferecido || !dataHora || !local) {
       toast.error("Preencha todos os campos obrigatórios.");
@@ -291,28 +281,23 @@ export default function LivroDetalhes() {
       const storedUser = localStorage.getItem("user");
       const currentUser = JSON.parse(storedUser);
 
-      // Encontrar o livro oferecido nos meus livros
       const livroOferecidoData = meusLivros.find(
         (l) => l.id === parseInt(livroOferecido)
       );
       console.log("📕 Livro oferecido encontrado:", livroOferecidoData);
 
-      // ID do livro desejado (o livro da página atual)
       let livroDesejadoId = null;
 
       const isBackendId = /^\d+$/.test(id);
       console.log("🔍 É Backend ID?", isBackendId);
 
       if (isBackendId) {
-        // É um ID do backend
         livroDesejadoId = parseInt(id);
         console.log("✅ Usando ID do backend diretamente:", livroDesejadoId);
       } else {
         console.log("⚠️ É Google Books ID, tentando buscar na estante...");
         console.log("📖 Título do livro atual:", book?.title);
 
-        // Buscar na lista de owners (que já temos carregada)
-        // Verificar se o targetUser está na lista de owners
         const targetUserOwnsBook = owners.find(
           (owner) => owner.id === targetUser.id
         );
@@ -320,8 +305,6 @@ export default function LivroDetalhes() {
         if (targetUserOwnsBook) {
           console.log("✅ Target user está na lista de owners!");
 
-          // Se chegamos aqui, significa que o livro TEM que estar no backend
-          // Vamos buscar todos os livros e encontrar pelo título
           try {
             const response = await fetch(`${API_BASE_URL}/livros`, {
               headers: {
@@ -344,7 +327,6 @@ export default function LivroDetalhes() {
                 console.log("✅ ID do livro encontrado:", livroDesejadoId);
               } else {
                 console.log("❌ Livro não encontrado no backend");
-                // Tentar buscar pelos livros do usuário específico
                 const userBooksResponse = await fetch(
                   `${API_BASE_URL}/usuarios/${targetUser.id}/livros`,
                   {
@@ -377,7 +359,6 @@ export default function LivroDetalhes() {
           }
         } else {
           console.log("❌ Target user NÃO está na lista de owners");
-          console.log("📋 Lista de owners:", owners);
         }
       }
 
@@ -398,11 +379,9 @@ export default function LivroDetalhes() {
         return;
       }
 
-      // Converter data para LocalDateTime (ISO format)
       const dataHoraISO = new Date(dataHora).toISOString().slice(0, 19);
       console.log("📅 Data convertida:", dataHoraISO);
 
-      // ✅ Payload COMPLETO
       const propostaPayload = {
         proponenteId: currentUser.id,
         propostoId: targetUser.id,
@@ -413,8 +392,6 @@ export default function LivroDetalhes() {
         localSugerido: local,
         observacoes: observacao || null,
       };
-
-      console.log("📤 Payload completo:", propostaPayload);
 
       const response = await fetch(`${API_BASE_URL}/propostas`, {
         method: "POST",
@@ -441,8 +418,6 @@ export default function LivroDetalhes() {
       console.error("❌ Erro de conexão:", error);
       toast.error("Erro de conexão.");
     }
-
-    console.log("=== FIM handleSubmitProposta ===");
   };
 
   if (loading)

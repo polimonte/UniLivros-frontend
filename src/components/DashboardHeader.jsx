@@ -10,15 +10,11 @@ export default function DashboardHeader({ onMenuClick, onAddBookClick }) {
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false); // ⬅️ NOVO ESTADO
   const navigate = useNavigate();
 
-  // Função para buscar o status das notificações
   const fetchNotificationStatus = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      // ✅ Endpoint de exemplo: você precisará implementar um no backend
-      // que retorne se há notificações não lidas para o usuário.
-      // Vou usar um nome de endpoint provisório: /notificacoes/nao-lidas/status
       const response = await fetch(
         `${API_BASE_URL}/notificacoes/nao-lidas/status`,
         {
@@ -27,23 +23,18 @@ export default function DashboardHeader({ onMenuClick, onAddBookClick }) {
       );
 
       if (response.ok) {
-        // Supondo que a API retorne um objeto { hasUnread: boolean }
         const data = await response.json();
         setHasUnreadNotifications(data.hasUnread);
       }
     } catch (error) {
       console.error("Erro ao verificar notificações:", error);
-      // O erro não deve bloquear a renderização do header
     }
   };
 
   useEffect(() => {
     fetchNotificationStatus();
-
-    // Opcional: Atualizar a cada 60 segundos
     const intervalId = setInterval(fetchNotificationStatus, 60000);
 
-    // Limpeza ao desmontar o componente
     return () => clearInterval(intervalId);
   }, []);
 

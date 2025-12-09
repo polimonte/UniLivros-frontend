@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { FaEye, FaEyeSlash, FaCamera } from "react-icons/fa"; // Adicionado FaCamera
+import { FaEye, FaEyeSlash, FaCamera } from "react-icons/fa";
 import Modal from "./Modal";
 import "./PerfilHeader.css";
 import { API_BASE_URL } from "../services/api";
@@ -40,12 +40,10 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
     }
   }, [isEditModalOpen, user]);
 
-  // --- LÓGICA DE UPLOAD DE AVATAR (NOVO) ---
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validação simples de tamanho (ex: máx 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.warn("A imagem deve ter no máximo 5MB.");
       return;
@@ -56,14 +54,12 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
 
     try {
       const token = localStorage.getItem("token");
-      // Upload imediato ao selecionar a foto
       const response = await fetch(
         `${API_BASE_URL}/usuarios/${user.id}/avatar`,
         {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
-            // Nota: Não definimos Content-Type aqui, o navegador define multipart/form-data automaticamente com o boundary correto
           },
           body: formData,
         }
@@ -72,7 +68,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
       if (response.ok) {
         const updatedUser = await response.json();
 
-        // Atualiza o localStorage com a nova URL da foto
         const storedUser = JSON.parse(localStorage.getItem("user"));
         const newUserState = {
           ...storedUser,
@@ -82,7 +77,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
 
         toast.success("Foto de perfil atualizada!");
 
-        // Recarrega para atualizar a imagem em todos os lugares (header, sidebar, etc)
         window.location.reload();
       } else {
         toast.error("Erro ao enviar imagem.");
@@ -92,7 +86,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
       toast.error("Erro de conexão ao enviar imagem.");
     }
   };
-  // -----------------------------------------
 
   const validatePassword = (password) => {
     if (password.length < 6) return "A senha deve ter pelo menos 6 caracteres";
@@ -190,8 +183,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
 
       if (response.ok) {
         const usuarioAtualizado = await response.json();
-
-        // Mantém a foto antiga caso a API não retorne no PUT, ou usa a nova
         const currentAvatar = user.avatarUrl;
         const userLocalStorage = {
           ...user,
@@ -213,7 +204,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
     }
   };
 
-  // Define a imagem a ser mostrada (Base64 do banco ou placeholder)
   const avatarImage =
     user.avatarUrl || "https://via.placeholder.com/150?text=Foto";
 
@@ -297,11 +287,10 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
               type="file"
               accept="image/*"
               onChange={handleAvatarChange}
-              style={{ display: "none" }} // Esconde o input original
+              style={{ display: "none" }}
             />
           </div>
         </div>
-        {/* ----------------------------- */}
 
         <form className="edit-profile-form" onSubmit={handleSave}>
           <h3 className="edit-section-title">Dados Pessoais</h3>

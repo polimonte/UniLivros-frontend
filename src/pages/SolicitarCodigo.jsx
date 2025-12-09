@@ -15,7 +15,7 @@ export default function SolicitarCodigo() {
     try {
       return await response.json();
     } catch (e) {
-      return {}; // evita crash caso backend não envie JSON
+      return {};
     }
   };
 

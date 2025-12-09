@@ -41,12 +41,10 @@ export default function ConfirmarCodigo() {
       newCodigo[index] = value;
       setCodigo(newCodigo);
 
-      // Auto-focus próximo input
       if (value && index < 5) {
         document.getElementById(`code-input-${index + 1}`).focus();
       }
 
-      // Auto-submit quando todos os dígitos estiverem preenchidos
       if (newCodigo.every((digit) => digit !== "") && index === 5) {
         handleValidateCode();
       }
@@ -95,7 +93,6 @@ export default function ConfirmarCodigo() {
     setIsValidating(true);
 
     try {
-      // Valida o código antes de prosseguir
       const response = await fetch(`${API_BASE_URL}/auth/validate-reset-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -108,7 +105,6 @@ export default function ConfirmarCodigo() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Código válido, avança para nova senha
         navigate("/nova-senha", {
           state: {
             email: email,
@@ -118,7 +114,6 @@ export default function ConfirmarCodigo() {
         });
       } else {
         toast.error(data.message || "Código inválido. Tente novamente.");
-        // Limpa os inputs
         setCodigo(["", "", "", "", "", ""]);
         document.getElementById("code-input-0").focus();
       }
@@ -153,8 +148,8 @@ export default function ConfirmarCodigo() {
 
       if (response.ok) {
         toast.success("Novo código enviado!");
-        setTimer(300); // Reset timer
-        setCodigo(["", "", "", "", "", ""]); // Clear inputs
+        setTimer(300);
+        setCodigo(["", "", "", "", "", ""]);
         document.getElementById("code-input-0").focus();
       } else {
         toast.error(data.message || "Erro ao reenviar código.");

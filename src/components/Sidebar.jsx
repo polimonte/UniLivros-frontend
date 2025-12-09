@@ -11,7 +11,7 @@ export default function Sidebar({ isOpen, onClose, onAddBookClick }) {
 
   const fetchNotificationStatus = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return; // Não tenta buscar se não houver token
+    if (!token) return;
 
     try {
       const response = await fetch(
@@ -27,10 +27,8 @@ export default function Sidebar({ isOpen, onClose, onAddBookClick }) {
 
       if (response.ok) {
         const data = await response.json();
-        // A resposta do backend é: { "hasUnread": true/false }
         setHasUnreadNotifications(data.hasUnread);
       } else if (response.status === 401) {
-        // Tratar caso de token expirado, se necessário
         console.warn("Token expirado ao verificar notificações.");
       } else {
         console.error("Falha ao buscar status de notificações.");
@@ -52,8 +50,6 @@ export default function Sidebar({ isOpen, onClose, onAddBookClick }) {
     }
   }, []);
 
-  // 1. Chama a função de verificação quando o componente é montado.
-  // 2. Chama a função sempre que o 'isOpen' for alterado para 'true' (o sidebar é aberto)
   useEffect(() => {
     if (isOpen) {
       fetchNotificationStatus();

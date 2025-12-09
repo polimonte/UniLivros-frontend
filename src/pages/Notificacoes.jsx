@@ -57,7 +57,6 @@ export default function Notificacoes() {
         },
       });
 
-      // Atualizar localmente
       setNotificacoes(
         notificacoes.map((n) => (n.id === id ? { ...n, lida: true } : n))
       );

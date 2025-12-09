@@ -9,7 +9,7 @@ import bookIcon from "../assets/book-icon.jpg";
 export default function ConfirmarCadastro() {
   const [codigo, setCodigo] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
-  const [timer, setTimer] = useState(3600); // 1 hora (60 minutos)
+  const [timer, setTimer] = useState(3600);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -45,7 +45,6 @@ export default function ConfirmarCadastro() {
       newCodigo[index] = value;
       setCodigo(newCodigo);
 
-      // Auto-focus próximo input
       if (value && index < 5) {
         document.getElementById(`code-input-${index + 1}`).focus();
       }
@@ -85,7 +84,6 @@ export default function ConfirmarCadastro() {
       return;
     }
 
-    // Recomendação: Verifique se o e-mail está disponível antes de submeter.
     if (!email) {
       toast.error("E-mail não encontrado. Por favor, volte ao cadastro.");
       return;
@@ -95,16 +93,15 @@ export default function ConfirmarCadastro() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/auth/verify-email/${fullCode}`, // 1. URL corrigida (sem query param)
+        `${API_BASE_URL}/auth/verify-email/${fullCode}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            // 2. 'body' movido para dentro do objeto de opções
-            email: email, // 3. Adicionado o email no corpo da requisição (Recomendado)
+            email: email,
             codigoVerificacao: fullCode,
           }),
-        } // 4. Objeto de opções fechado corretamente
+        }
       );
 
       const data = await response.json();
@@ -149,8 +146,8 @@ export default function ConfirmarCadastro() {
 
       if (response.ok) {
         toast.success("Novo código enviado para seu email!");
-        setTimer(3600); // Reset timer para 1 hora
-        setCodigo(["", "", "", "", "", ""]); // Clear inputs
+        setTimer(3600);
+        setCodigo(["", "", "", "", "", ""]);
         document.getElementById("code-input-0").focus();
       } else {
         toast.error(data.message || "Erro ao reenviar código.");

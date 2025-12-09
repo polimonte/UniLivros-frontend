@@ -47,25 +47,20 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // Salvar o token
         if (data.token) {
           localStorage.setItem("token", data.token);
-          console.log("✅ Token salvo no localStorage");
         } else {
           console.error("❌ Token não veio na resposta:", data);
         }
 
-        // ===== CORREÇÃO: A API retorna 'usuario' não 'user' =====
         const userData = data.usuario || data.user;
 
         if (userData) {
           const userString = JSON.stringify(userData);
           localStorage.setItem("user", userString);
-          console.log("✅ Usuário salvo no localStorage:", userString);
         } else {
           console.error("❌ Dados do usuário não vieram na resposta:", data);
         }
-        // ========================================================
 
         toast.success("Login realizado com sucesso!");
         navigate("/dashboard");
