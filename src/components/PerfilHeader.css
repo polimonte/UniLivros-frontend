@@ -263,3 +263,48 @@
   border-radius: 0 8px 8px 0;
   pointer-events: none;
 }
+
+/* CSS ADICIONAL PARA O UPLOAD DE AVATAR */
+
+.edit-avatar-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.avatar-upload-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.avatar-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #f6e3c7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-upload-label {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: #F9B233;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid white;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+}
+
+.avatar-upload-label:hover {
+  background-color: #e6a91f;
+}

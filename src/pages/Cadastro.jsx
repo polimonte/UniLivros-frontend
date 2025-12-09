@@ -300,7 +300,7 @@ export default function Cadastro() {
               <li>
                 ✓ Email: apenas letras, números, ponto, hífen e underscore
               </li>
-              <li>✓ Senha: mínimo 6 caracteres</li>
+              <li>✓ Senha: mínimo 8 caracteres</li>
               <li>✓ Senha: pelo menos uma letra maiúscula</li>
               <li>✓ Senha: pelo menos um número</li>
             </ul>

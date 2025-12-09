@@ -113,6 +113,7 @@ export default function Perfil() {
     );
 
   const headerUser = {
+    id: profile.id,
     name: profile.nome,
     avatar: profile.avatarUrl || avatarDefault,
     curso: profile.curso,

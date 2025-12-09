@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaCamera } from "react-icons/fa"; // Adicionado FaCamera
 import Modal from "./Modal";
 import "./PerfilHeader.css";
+import { API_BASE_URL } from "../services/api";
 
 export default function PerfilHeader({ user, activeTab, setActiveTab }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -22,12 +23,10 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
   });
 
   useEffect(() => {
-    if (isEditModalOpen) {
-      // Separa o email para mostrar apenas o prefixo no input
+    if (isEditModalOpen && user) {
       const emailPrefix = user.email ? user.email.split("@")[0] : "";
-
       setFormData({
-        name: user.name || "",
+        name: user.name || user.nome || "",
         curso: user.curso || "",
         email: emailPrefix,
         senhaAtual: "",
@@ -37,11 +36,64 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
       setShowCurrent(false);
       setShowNew(false);
       setShowConfirmNew(false);
-      setPasswordStrength(0); // Reseta a força ao abrir o modal
+      setPasswordStrength(0);
     }
   }, [isEditModalOpen, user]);
 
-  // Lógica de Força de Senha (copiada de NovaSenha.js)
+  // --- LÓGICA DE UPLOAD DE AVATAR (NOVO) ---
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validação simples de tamanho (ex: máx 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.warn("A imagem deve ter no máximo 5MB.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const token = localStorage.getItem("token");
+      // Upload imediato ao selecionar a foto
+      const response = await fetch(
+        `${API_BASE_URL}/usuarios/${user.id}/avatar`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // Nota: Não definimos Content-Type aqui, o navegador define multipart/form-data automaticamente com o boundary correto
+          },
+          body: formData,
+        }
+      );
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+
+        // Atualiza o localStorage com a nova URL da foto
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const newUserState = {
+          ...storedUser,
+          avatarUrl: updatedUser.avatarUrl,
+        };
+        localStorage.setItem("user", JSON.stringify(newUserState));
+
+        toast.success("Foto de perfil atualizada!");
+
+        // Recarrega para atualizar a imagem em todos os lugares (header, sidebar, etc)
+        window.location.reload();
+      } else {
+        toast.error("Erro ao enviar imagem.");
+      }
+    } catch (error) {
+      console.error("Erro upload avatar:", error);
+      toast.error("Erro de conexão ao enviar imagem.");
+    }
+  };
+  // -----------------------------------------
+
   const validatePassword = (password) => {
     if (password.length < 6) return "A senha deve ter pelo menos 6 caracteres";
     if (!/[A-Z]/.test(password)) return "Inclua pelo menos uma letra maiúscula";
@@ -58,7 +110,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
     return strength;
   };
 
-  // Determina a classe CSS com base na força (APENAS RETORNA CLASSE - SEM COR AQUI)
   const getStrengthClass = () => {
     if (passwordStrength === 0) return "";
     if (passwordStrength < 50) return "weak";
@@ -78,27 +129,30 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
     if (passwordStrength < 75) return "#ffbb33";
     return "#00C851";
   };
-  // Fim da Lógica de Força de Senha
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Atualiza a força da senha apenas para o campo "novaSenha"
     if (name === "novaSenha") {
       setPasswordStrength(calculatePasswordStrength(value));
     }
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
 
-    if (formData.novaSenha || formData.senhaAtual) {
-      if (!formData.senhaAtual) {
-        toast.error("Para alterar a senha, informe a senha atual.");
-        return;
-      }
+    if (!user || !user.id) {
+      console.error(
+        "ERRO CRÍTICO: ID do usuário não encontrado no objeto 'user'.",
+        user
+      );
+      toast.error("Erro de identificação do usuário. Faça login novamente.");
+      return;
+    }
 
+    let senhaParaEnvio = null;
+
+    if (formData.novaSenha && formData.novaSenha.trim() !== "") {
       const passwordError = validatePassword(formData.novaSenha);
       if (passwordError) {
         toast.error(`Nova Senha: ${passwordError}`);
@@ -109,24 +163,59 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
         toast.error("A nova senha e a confirmação não conferem.");
         return;
       }
+      senhaParaEnvio = formData.novaSenha;
     }
 
-    // LÓGICA DO EMAIL COMPLETO PARA SALVAR
     const emailCompleto = `${formData.email}@souunit.com.br`;
 
     const dataToSave = {
-      ...formData,
+      nome: formData.name,
+      curso: formData.curso,
       email: emailCompleto,
+      matricula: user.matricula,
+      semestre: user.semestre,
+      ...(senhaParaEnvio && { senha: senhaParaEnvio }),
     };
 
-    console.log("Dados salvos:", dataToSave);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/usuarios/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(dataToSave),
+      });
 
-    // AQUI VOCÊ FARIA O FETCH PARA ATUALIZAR O USUÁRIO (PUT)
-    // await fetch(...)
+      if (response.ok) {
+        const usuarioAtualizado = await response.json();
 
-    toast.success("Perfil atualizado com sucesso!");
-    setIsEditModalOpen(false);
+        // Mantém a foto antiga caso a API não retorne no PUT, ou usa a nova
+        const currentAvatar = user.avatarUrl;
+        const userLocalStorage = {
+          ...user,
+          ...usuarioAtualizado,
+          avatarUrl: usuarioAtualizado.avatarUrl || currentAvatar,
+        };
+
+        localStorage.setItem("user", JSON.stringify(userLocalStorage));
+        toast.success("Perfil atualizado com sucesso!");
+        setIsEditModalOpen(false);
+        window.location.reload();
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.message || "Erro ao atualizar perfil.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      toast.error("Erro de conexão com o servidor.");
+    }
   };
+
+  // Define a imagem a ser mostrada (Base64 do banco ou placeholder)
+  const avatarImage =
+    user.avatarUrl || "https://via.placeholder.com/150?text=Foto";
 
   return (
     <>
@@ -140,24 +229,25 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
         </button>
 
         <div className="perfil-info-main">
-          <img src={user.avatar} alt={user.name} className="perfil-avatar" />
+          <img src={avatarImage} alt={user.name} className="perfil-avatar" />
           <div className="perfil-info-text">
-            <h1 className="perfil-name">{user.name}</h1>
+            <h1 className="perfil-name">{user.name || user.nome}</h1>
             <p className="perfil-curso">{user.curso}</p>
             <div className="perfil-stats">
               <span className="stat-item">
-                &#128214; {user.livrosDisponiveis} Livros
+                &#128214; {user.livrosDisponiveis || 0} Livros
               </span>
               <span className="stat-item">
-                &#8644; {user.tradeCount} Trocados
+                &#8644; {user.tradeCount || user.totalTrocas || 0} Trocados
               </span>
               <span className="stat-item">
-                &#127942; {user.conquistaCount} Conquistas
+                &#127942; {user.conquistaCount || 0} Conquistas
               </span>
-              <span className="stat-item">&#9733; {user.rating}</span>
+              <span className="stat-item">
+                &#9733; {user.rating || user.avaliacao || 5.0}
+              </span>
             </div>
           </div>
-          <div className="perfil-info-actions"></div>
         </div>
 
         <nav className="perfil-nav-tabs">
@@ -190,6 +280,29 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
 
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
         <h2 className="edit-modal-title">Editar Perfil</h2>
+
+        {/* --- ÁREA DE UPLOAD DE FOTO --- */}
+        <div className="edit-avatar-section">
+          <div className="avatar-upload-wrapper">
+            <img src={avatarImage} alt="Preview" className="avatar-preview" />
+            <label
+              htmlFor="avatar-upload"
+              className="avatar-upload-label"
+              title="Alterar foto"
+            >
+              <FaCamera />
+            </label>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              style={{ display: "none" }} // Esconde o input original
+            />
+          </div>
+        </div>
+        {/* ----------------------------- */}
+
         <form className="edit-profile-form" onSubmit={handleSave}>
           <h3 className="edit-section-title">Dados Pessoais</h3>
           <div className="form-group">
@@ -211,7 +324,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
             />
           </div>
 
-          {/* CAMPO DE EMAIL COM DOMÍNIO FIXO */}
           <div className="form-group">
             <label>E-mail</label>
             <div className="edit-email-row">
@@ -268,7 +380,6 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
                 </button>
               </div>
 
-              {/* Barra de Força da Senha para Nova Senha */}
               {formData.novaSenha && (
                 <div
                   className={`password-strength modal-strength ${getStrengthClass()}`}
@@ -307,12 +418,11 @@ export default function PerfilHeader({ user, activeTab, setActiveTab }) {
             </div>
           </div>
 
-          {/* Requisitos de Senha */}
           <div className="form-footer modal-footer">
             <p className="form-help-text">
               A nova senha deve conter:
               <ul className="password-requirements modal-requirements">
-                <li>✓ Pelo menos 6 caracteres</li>
+                <li>✓ Pelo menos 8 caracteres</li>
                 <li>✓ Pelo menos uma letra maiúscula</li>
                 <li>✓ Pelo menos um número</li>
               </ul>

@@ -100,16 +100,6 @@ export default function Sidebar({ isOpen, onClose, onAddBookClick }) {
               <div className="notification-badge"></div>
             )}
           </Link>
-
-          <Link to="#" className="sidebar-link" onClick={handleAddClick}>
-            <span className="sidebar-link-icon add-icon">+</span>
-            <span className="sidebar-link-text">Adicionar Livro</span>
-          </Link>
-
-          <Link to="/minhas-trocas" className="sidebar-link" onClick={onClose}>
-            <span className="sidebar-link-icon">&#128213;</span>
-            <span className="sidebar-link-text">Minhas trocas</span>
-          </Link>
           <Link to={profileLink} className="sidebar-link" onClick={onClose}>
             <span className="sidebar-link-icon">&#128100;</span>
             <span className="sidebar-link-text">Meu Perfil</span>
