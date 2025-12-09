@@ -59,7 +59,8 @@
   color: #ffffff;
 }
 
-.trade-status.concluída, .trade-status.aceita {
+.trade-status.concluida,
+.trade-status.aceita {
   background-color: #8BC34A;
 }
 

@@ -19,6 +19,11 @@ export default function AddBookModal({
   const [condicao, setCondicao] = useState("USADO_BOM");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // --- NOVOS ESTADOS PARA A IA ---
+  const [nivelLeituraIA, setNivelLeituraIA] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  // -------------------------------
+
   useEffect(() => {
     if (isOpen) {
       if (initialBook) {
@@ -31,6 +36,7 @@ export default function AddBookModal({
         setSearchQuery("");
       }
       setCondicao("USADO_BOM");
+      setNivelLeituraIA(null); // Reseta a IA ao abrir
     }
   }, [isOpen, initialBook]);
 
@@ -79,8 +85,60 @@ export default function AddBookModal({
 
   const handleSelectBook = (book) => {
     setSelectedBook(book);
+    setNivelLeituraIA(null); // Limpa análise anterior se trocar de livro
     setStep("confirm");
   };
+
+  // --- NOVA FUNÇÃO DE ANÁLISE COM IA ---
+  const handleAnalyzeWithAI = async () => {
+    if (!selectedBook) return;
+
+    // Validação mínima para a IA funcionar bem
+    if (!selectedBook.genero && !selectedBook.descricao) {
+      toast.warn("O livro precisa ter Gênero ou Descrição para a IA analisar.");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setNivelLeituraIA(null);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      // Monta objeto compatível com LivroDTO do backend
+      const livroDTO = {
+        titulo: selectedBook.titulo,
+        autor: selectedBook.autor,
+        editora: selectedBook.editora,
+        genero: selectedBook.genero,
+        ano: parseInt(selectedBook.ano) || 2024,
+        descricao: selectedBook.descricao,
+      };
+
+      const response = await fetch(`${API_BASE_URL}/livros/analise-ia`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(livroDTO),
+      });
+
+      if (response.ok) {
+        const resultado = await response.text();
+        setNivelLeituraIA(resultado);
+        toast.success("Análise de IA concluída!");
+      } else {
+        toast.error("Erro ao processar com IA.");
+      }
+    } catch (error) {
+      console.error("Erro IA:", error);
+      toast.error("Erro de conexão com o serviço de IA.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+  // -------------------------------------
 
   const handleSubmit = async () => {
     if (!selectedBook) return;
@@ -93,7 +151,6 @@ export default function AddBookModal({
         return;
       }
 
-      // ===== ALTERAÇÃO: Adicionando googleId ao payload =====
       const payload = {
         titulo: selectedBook.titulo.trim(),
         autor: selectedBook.autor.trim(),
@@ -104,8 +161,9 @@ export default function AddBookModal({
         descricao: selectedBook.descricao?.substring(0, 499) || "",
         condicao: condicao,
         googleId: selectedBook.googleId || null,
+        // Opcional: Se quiser salvar o nível no banco, adicione aqui:
+        // nivelLeitura: nivelLeituraIA
       };
-      // ======================================================
 
       console.log("Enviando Payload:", payload);
 
@@ -192,7 +250,7 @@ export default function AddBookModal({
                 <img
                   src={
                     selectedBook.imagemUrl ||
-                    "https://via. placeholder.com/100x150"
+                    "https://via.placeholder.com/100x150"
                   }
                   alt="Capa"
                   className="confirm-cover"
@@ -223,6 +281,64 @@ export default function AddBookModal({
                       <option value="USADO_RUIM">Usado - Ruim</option>
                     </select>
                   </div>
+
+                  {/* === SEÇÃO DE ANÁLISE COM IA (NOVO) === */}
+                  <div
+                    className="ai-analysis-box"
+                    style={{
+                      marginTop: "15px",
+                      padding: "10px",
+                      backgroundColor: "#e3f2fd",
+                      borderRadius: "8px",
+                      border: "1px solid #bbdefb",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          color: "#1565c0",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "5px",
+                        }}
+                      >
+                        🤖 Nível de Leitura
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleAnalyzeWithAI}
+                        disabled={isAnalyzing}
+                        style={{
+                          backgroundColor: isAnalyzing ? "#ccc" : "#1976d2",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          padding: "5px 10px",
+                          cursor: isAnalyzing ? "wait" : "pointer",
+                          fontSize: "0.8rem",
+                        }}
+                      >
+                        {isAnalyzing ? "Analisando..." : "Analisar com IA"}
+                      </button>
+                    </div>
+
+                    {nivelLeituraIA && (
+                      <div style={{ marginTop: "8px", fontSize: "0.95rem" }}>
+                        Classificação:{" "}
+                        <strong style={{ color: "#2e7d32" }}>
+                          {nivelLeituraIA}
+                        </strong>
+                      </div>
+                    )}
+                  </div>
+                  {/* ======================================= */}
                 </div>
               </div>
             )}
