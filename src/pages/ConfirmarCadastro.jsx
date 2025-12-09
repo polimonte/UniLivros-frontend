@@ -85,15 +85,26 @@ export default function ConfirmarCadastro() {
       return;
     }
 
+    // Recomendação: Verifique se o e-mail está disponível antes de submeter.
+    if (!email) {
+      toast.error("E-mail não encontrado. Por favor, volte ao cadastro.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/auth/verify-email?code=${fullCode}`,
+        `${API_BASE_URL}/auth/verify-email/${fullCode}`, // 1. URL corrigida (sem query param)
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-        }
+          body: JSON.stringify({
+            // 2. 'body' movido para dentro do objeto de opções
+            email: email, // 3. Adicionado o email no corpo da requisição (Recomendado)
+            codigoVerificacao: fullCode,
+          }),
+        } // 4. Objeto de opções fechado corretamente
       );
 
       const data = await response.json();

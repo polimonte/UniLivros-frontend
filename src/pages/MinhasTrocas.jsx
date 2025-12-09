@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Modal from "../components/Modal";
+import TradeCard from "../components/TradeCard";
 import { API_BASE_URL } from "../services/api";
 import "./MinhasTrocas.css";
 
@@ -28,7 +29,43 @@ export default function MinhasTrocas() {
       if (response.ok) {
         const data = await response.json();
         console.log("📦 Trocas recebidas:", data);
-        setTrocas(data);
+
+        // Processar trocas com imagens do Google Books
+        const trocasProcessadas = await Promise.all(
+          data.map(async (troca) => {
+            const fetchImage = async (titulo) => {
+              try {
+                const res = await fetch(
+                  `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+                    titulo
+                  )}&maxResults=1`
+                );
+                const googleData = await res.json();
+                return (
+                  googleData.items?.[0]?.volumeInfo?.imageLinks?.thumbnail ||
+                  "https://via.placeholder.com/80x120?text=Sem+Capa"
+                );
+              } catch {
+                return "https://via.placeholder.com/80x120?text=Sem+Capa";
+              }
+            };
+
+            const imgLivro1 = troca.livro1Titulo
+              ? await fetchImage(troca.livro1Titulo)
+              : null;
+            const imgLivro2 = troca.livro2Titulo
+              ? await fetchImage(troca.livro2Titulo)
+              : null;
+
+            return {
+              ...troca,
+              livro1Img: imgLivro1,
+              livro2Img: imgLivro2,
+            };
+          })
+        );
+
+        setTrocas(trocasProcessadas);
       } else {
         toast.error("Erro ao carregar trocas");
       }
@@ -55,7 +92,7 @@ export default function MinhasTrocas() {
         const data = await response.json();
         console.log("📱 QR Code gerado:", data);
         setQrCodeImage(data.qrCodeBase64);
-        setSelectedTroca(data);
+        setSelectedTroca({ ...selectedTroca, qrCode: data.qrCode });
         setShowQRModal(true);
         carregarTrocas();
       } else {
@@ -86,7 +123,6 @@ export default function MinhasTrocas() {
       );
 
       if (response.ok) {
-        const troca = await response.json();
         toast.success("Troca concluída com sucesso!");
         setShowValidateModal(false);
         setQrCodeInput("");
@@ -128,33 +164,26 @@ export default function MinhasTrocas() {
 
   const formatDate = (dateString) => {
     if (!dateString) return "Não informada";
-    return new Date(dateString).toLocaleString("pt-BR");
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      PENDENTE: "#FFA500",
-      CONFIRMADA: "#4CAF50",
-      CONCLUIDA: "#2196F3",
-      CANCELADA: "#F44336",
-    };
-    return colors[status] || "#999";
-  };
-
-  const getStatusText = (status) => {
-    const texts = {
-      PENDENTE: "Aguardando Confirmação",
-      CONFIRMADA: "Confirmada",
-      CONCLUIDA: "Concluída",
-      CANCELADA: "Cancelada",
-    };
-    return texts[status] || status;
+    try {
+      return new Date(dateString).toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return "Data inválida";
+    }
   };
 
   return (
     <>
       <main className="trocas-main">
         <h1 className="trocas-title">Minhas Trocas</h1>
+        <h2 className="trocas-subtitle">
+          Gerencie suas trocas confirmadas e em andamento
+        </h2>
 
         <button
           className="btn-validar-qr-top"
@@ -164,7 +193,7 @@ export default function MinhasTrocas() {
         </button>
 
         {isLoading ? (
-          <p className="loading-text">Carregando...</p>
+          <p>Carregando trocas...</p>
         ) : (
           <div className="trocas-list">
             {trocas.length === 0 && (
@@ -176,38 +205,21 @@ export default function MinhasTrocas() {
               </div>
             )}
             {trocas.map((troca) => (
-              <div
+              <TradeCard
                 key={troca.id}
-                className="troca-card"
+                trade={{
+                  livroRecebido: {
+                    title: troca.livro1Titulo || "Livro 1",
+                    img: troca.livro1Img,
+                  },
+                  livroDado: {
+                    title: troca.livro2Titulo || "Livro 2",
+                    img: troca.livro2Img,
+                  },
+                  status: troca.status || "PENDENTE",
+                }}
                 onClick={() => setSelectedTroca(troca)}
-              >
-                <div className="troca-header">
-                  <h3>🔄 Troca #{troca.id}</h3>
-                  <span
-                    className="troca-status"
-                    style={{ backgroundColor: getStatusColor(troca.status) }}
-                  >
-                    {getStatusText(troca.status)}
-                  </span>
-                </div>
-                <div className="troca-info">
-                  <p>
-                    <strong>📅 Criada em:</strong> {formatDate(troca.createdAt)}
-                  </p>
-                  {troca.dataHora && (
-                    <p>
-                      <strong>🕐 Data sugerida:</strong>{" "}
-                      {formatDate(troca.dataHora)}
-                    </p>
-                  )}
-                  {troca.dataConfirmacao && (
-                    <p>
-                      <strong>✅ Concluída em:</strong>{" "}
-                      {formatDate(troca.dataConfirmacao)}
-                    </p>
-                  )}
-                </div>
-              </div>
+              />
             ))}
           </div>
         )}
@@ -219,15 +231,30 @@ export default function MinhasTrocas() {
         onClose={() => setSelectedTroca(null)}
       >
         {selectedTroca && (
-          <div className="troca-modal-content">
-            <h2>🔄 Detalhes da Troca #{selectedTroca.id}</h2>
+          <div>
+            <h2 className="troca-modal-title">
+              Detalhes da Troca #{selectedTroca.id}
+            </h2>
+
+            <div className="troca-modal-section">
+              <p>
+                <strong>Livro 1:</strong> {selectedTroca.livro1Titulo}
+              </p>
+              <p>
+                <strong>Livro 2:</strong> {selectedTroca.livro2Titulo}
+              </p>
+            </div>
 
             <div className="troca-modal-section">
               <p>
                 <strong>Status:</strong>{" "}
-                <span style={{ color: getStatusColor(selectedTroca.status) }}>
-                  {getStatusText(selectedTroca.status)}
-                </span>
+                {selectedTroca.status === "PENDENTE"
+                  ? "Aguardando Confirmação"
+                  : selectedTroca.status === "CONFIRMADA"
+                  ? "Confirmada"
+                  : selectedTroca.status === "CONCLUIDA"
+                  ? "Concluída"
+                  : selectedTroca.status}
               </p>
               <p>
                 <strong>Criada em:</strong>{" "}
@@ -257,38 +284,34 @@ export default function MinhasTrocas() {
               )}
             </div>
 
-            <div className="troca-modal-actions">
-              {selectedTroca.status === "PENDENTE" && (
-                <>
+            {selectedTroca.status === "PENDENTE" && (
+              <div className="troca-modal-actions">
+                <button
+                  className="btn-cancelar-troca"
+                  onClick={() => cancelarTroca(selectedTroca.id)}
+                >
+                  Cancelar Troca
+                </button>
+                {selectedTroca.qrCode ? (
                   <button
-                    className="btn-cancelar-troca"
-                    onClick={() => cancelarTroca(selectedTroca.id)}
-                  >
-                    ❌ Cancelar Troca
-                  </button>
-                  <button
-                    className="btn-gerar-qrcode"
+                    className="btn-ver-qrcode"
                     onClick={() => {
-                      setSelectedTroca(null);
-                      gerarQRCode(selectedTroca.id);
+                      setQrCodeImage(selectedTroca.qrCodeBase64 || "");
+                      setShowQRModal(true);
                     }}
                   >
-                    📱 Gerar QR Code
+                    Ver QR Code
                   </button>
-                </>
-              )}
-
-              {selectedTroca.status === "PENDENTE" && selectedTroca.qrCode && (
-                <button
-                  className="btn-ver-qrcode"
-                  onClick={() => {
-                    gerarQRCode(selectedTroca.id);
-                  }}
-                >
-                  👁️ Ver QR Code
-                </button>
-              )}
-            </div>
+                ) : (
+                  <button
+                    className="btn-gerar-qrcode"
+                    onClick={() => gerarQRCode(selectedTroca.id)}
+                  >
+                    Gerar QR Code
+                  </button>
+                )}
+              </div>
+            )}
 
             <button
               className="troca-modal-close-btn"
@@ -303,7 +326,7 @@ export default function MinhasTrocas() {
       {/* Modal do QR Code */}
       <Modal isOpen={showQRModal} onClose={() => setShowQRModal(false)}>
         <div className="qrcode-modal-content">
-          <h2>📱 QR Code da Troca</h2>
+          <h2>QR Code da Troca</h2>
           {qrCodeImage && (
             <>
               <div className="qrcode-container">
@@ -327,7 +350,7 @@ export default function MinhasTrocas() {
                       toast.success("Código copiado!");
                     }}
                   >
-                    📋 Copiar Código
+                    Copiar Código
                   </button>
                 </div>
               )}
@@ -347,8 +370,8 @@ export default function MinhasTrocas() {
         isOpen={showValidateModal}
         onClose={() => setShowValidateModal(false)}
       >
-        <div className="validate-modal-content">
-          <h2>📱 Validar QR Code</h2>
+        <div>
+          <h2 className="troca-modal-title">Validar QR Code</h2>
           <p className="validate-description">
             Digite ou cole o código QR da troca para concluí-la:
           </p>
@@ -375,7 +398,7 @@ export default function MinhasTrocas() {
               Cancelar
             </button>
             <button className="btn-validar" onClick={validarQRCode}>
-              ✅ Validar e Concluir
+              Validar e Concluir
             </button>
           </div>
         </div>

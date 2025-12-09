@@ -1,53 +1,58 @@
 .trocas-main {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  width: 100%;
 }
 
 .trocas-title {
-  font-size: 2rem;
-  color: #4b2e2e;
-  margin-bottom: 2rem;
-  text-align: center;
+  color: #4B2E2E;
+  font-size: 1.8rem;
   font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.trocas-subtitle {
+  color: #555;
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 25px;
 }
 
 .btn-validar-qr-top {
-  display: block;
-  margin: 0 auto 2rem;
-  padding: 0.875rem 2rem;
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-  color: white;
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #F9B233;
+  color: #fff;
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
+  border-radius: 10px;
   font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+  margin-bottom: 25px;
 }
 
 .btn-validar-qr-top:hover {
+  background-color: #e6a91f;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
 }
 
-.loading-text {
-  text-align: center;
-  color: #666;
-  font-size: 1.1rem;
-  margin: 3rem 0;
+.trocas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .empty-state {
   text-align: center;
-  padding: 4rem 2rem;
+  padding: 40px 20px;
   color: #999;
 }
 
 .empty-state p {
-  font-size: 1.2rem;
-  margin: 0.5rem 0;
+  font-size: 1.1rem;
+  margin: 8px 0;
 }
 
 .empty-subtitle {
@@ -55,148 +60,113 @@
   color: #bbb;
 }
 
-.trocas-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+/* Modal de Detalhes da Troca */
+.troca-modal-title {
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #4B2E2E;
+  text-align: center;
 }
 
-.troca-card {
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
+.troca-modal-section {
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 8px;
 }
 
-.troca-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border-color: #e3f2fd;
-}
-
-.troca-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.troca-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #4b2e2e;
-  font-weight: 600;
-}
-
-.troca-status {
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  color: white;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.troca-info p {
-  margin: 0.75rem 0;
-  color: #555;
+.troca-modal-section p {
+  margin: 8px 0;
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.troca-info strong {
-  color: #333;
-  font-weight: 600;
-}
-
-/* Modais */
-.troca-modal-content,
-.qrcode-modal-content,
-.validate-modal-content {
-  padding: 2rem;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.troca-modal-content h2,
-.qrcode-modal-content h2,
-.validate-modal-content h2 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  color: #4b2e2e;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.troca-modal-section {
-  margin: 1.5rem 0;
-  padding: 1.25rem;
-  background: #f9f9f9;
-  border-radius: 12px;
-  border-left: 4px solid #2196f3;
-}
-
-.troca-modal-section p {
-  margin: 0.75rem 0;
-  font-size: 0.95rem;
-}
-
 .troca-modal-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .btn-cancelar-troca,
 .btn-gerar-qrcode,
 .btn-ver-qrcode {
-  flex: 1;
-  padding: 0.875rem 1.5rem;
-  border: none;
+  padding: 12px 20px;
   border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+  border: none;
   color: white;
 }
 
 .btn-cancelar-troca {
-  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  background-color: #E53935;
+  grid-column: 1 / -1;
+}
+
+.btn-cancelar-troca:hover {
+  background-color: #c62828;
 }
 
 .btn-gerar-qrcode {
-  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  background-color: #8BC34A;
+}
+
+.btn-gerar-qrcode:hover {
+  background-color: #79a93f;
 }
 
 .btn-ver-qrcode {
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  background-color: #2196F3;
+  grid-column: 1 / -1;
 }
 
-.btn-cancelar-troca:hover,
-.btn-gerar-qrcode:hover,
 .btn-ver-qrcode:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: #1976d2;
 }
 
-/* QR Code */
+.troca-modal-close-btn {
+  width: 100%;
+  padding: 12px 20px;
+  margin-top: 10px;
+  background-color: #F9B233;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+}
+
+.troca-modal-close-btn:hover {
+  background-color: #e6a91f;
+}
+
+/* Modal do QR Code */
+.qrcode-modal-content {
+  text-align: center;
+}
+
+.qrcode-modal-content h2 {
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #4B2E2E;
+}
+
 .qrcode-container {
   display: flex;
   justify-content: center;
-  padding: 2rem;
+  padding: 20px;
   background: white;
   border-radius: 12px;
-  margin: 1.5rem 0;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin: 20px 0;
 }
 
 .qrcode-image {
@@ -207,27 +177,24 @@
 }
 
 .qrcode-info {
-  text-align: center;
   color: #666;
-  margin: 1rem 0;
+  margin: 15px 0;
   font-size: 0.95rem;
   line-height: 1.6;
 }
 
 .qrcode-text-container {
-  background: #f5f5f5;
-  padding: 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 15px;
   border-radius: 8px;
-  margin-top: 1rem;
+  margin-top: 15px;
 }
 
 .qrcode-label {
   font-weight: 600;
-  color: #555;
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #4B2E2E;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
 }
 
 .qrcode-text {
@@ -236,119 +203,110 @@
   word-break: break-all;
   color: #333;
   background: white;
-  padding: 0.75rem;
+  padding: 10px;
   border-radius: 6px;
-  margin: 0.5rem 0;
-  border: 1px solid #e0e0e0;
+  margin: 8px 0;
+  border: 1px solid #E0CBB3;
 }
 
 .btn-copy-code {
   width: 100%;
-  padding: 0.75rem;
-  background: #2196f3;
+  padding: 10px;
+  background-color: #2196F3;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 0.5rem;
-  transition: all 0.2s ease;
+  margin-top: 8px;
+  transition: all 0.2s;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .btn-copy-code:hover {
-  background: #1976d2;
+  background-color: #1976d2;
 }
 
-/* Validação */
+/* Modal de Validação */
+.validate-modal-content h2 {
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #4B2E2E;
+  text-align: center;
+}
+
 .validate-description {
   text-align: center;
   color: #666;
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
   line-height: 1.6;
 }
 
 .qr-input {
   width: 100%;
-  padding: 0.875rem;
-  margin: 1rem 0;
-  border: 2px solid #ddd;
+  padding: 12px;
+  margin: 15px 0;
+  border: 2px solid #E0CBB3;
   border-radius: 8px;
   font-size: 1rem;
   font-family: 'Courier New', monospace;
   transition: border-color 0.3s ease;
+  box-sizing: border-box;
 }
 
 .qr-input:focus {
   outline: none;
-  border-color: #2196f3;
-  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  border-color: #F9B233;
 }
 
 .validate-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .btn-cancelar,
 .btn-validar {
-  flex: 1;
-  padding: 0.875rem;
+  padding: 12px 20px;
   border: none;
   border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
   color: white;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .btn-cancelar {
-  background: #999;
+  background-color: #999;
+}
+
+.btn-cancelar:hover {
+  background-color: #777;
 }
 
 .btn-validar {
-  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  background-color: #8BC34A;
 }
 
-.btn-cancelar:hover,
 .btn-validar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.troca-modal-close-btn {
-  width: 100%;
-  padding: 0.875rem;
-  margin-top: 1.5rem;
-  background: #f5f5f5;
-  color: #666;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.troca-modal-close-btn:hover {
-  background: #e0e0e0;
-  color: #333;
+  background-color: #79a93f;
 }
 
 /* Responsivo */
 @media (max-width: 768px) {
-  .trocas-list {
-    grid-template-columns: 1fr;
-  }
 
   .troca-modal-actions,
   .validate-actions {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .btn-cancelar-troca,
   .btn-gerar-qrcode,
   .btn-ver-qrcode {
-    width: 100%;
+    grid-column: 1;
   }
 }

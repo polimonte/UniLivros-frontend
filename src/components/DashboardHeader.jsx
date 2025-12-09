@@ -39,14 +39,6 @@ export default function DashboardHeader({ onMenuClick, onAddBookClick }) {
 
         <nav className="dash-header-right">
           <button
-            className="dash-icon-btn add-btn"
-            onClick={onAddBookClick}
-            title="Adicionar Livro"
-          >
-            +
-          </button>
-
-          <button
             className="dash-icon-btn profile-btn"
             onClick={onMenuClick}
             title="Menu / Perfil"
